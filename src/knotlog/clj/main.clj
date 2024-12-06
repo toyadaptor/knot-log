@@ -3,6 +3,6 @@
     [knotlog.clj.router :as router]))
 
 (defn -main
-  [& args]
+  [& _]
   (println "Hello world!")
   (router/start))

@@ -2,53 +2,159 @@
   (:require [clojure.java.jdbc :as j]
             [honey.sql :as sql]
             [knotlog.clj.config :refer [db-config]]
-            [knotlog.clj.util :refer :all]))
+            [knotlog.cljc.util :refer :all]))
 
 
 
-(defn select-piece [piece-id]
+(defn select-piece-by-id [piece-id]
+  (first (j/query db-config (sql/format
+                              {:select :*
+                               :from   :knot_piece
+                               :where  [:= :id piece-id]}))))
+
+(defn select-piece-recent-list [offset limit]
   (j/query db-config (sql/format
-                       {:select :*
-                        :from :knot_piece
-                        :where [:= :id piece-id]})))
-(defn insert-piece [content]
-  (j/execute! db-config (sql/format
-                          {:insert-into :knot_piece
-                           :values      [{:content  content
-                                          :subject  nil
-                                          :base_ymd (now-time-str {:style :ymd})
-                                          :base_md  (now-time-str {:style :md})}]})))
+                       {:select   :*
+                        :from     :knot_piece
+                        :where    [:= :knot nil]
+                        :order-by [[:update_time :desc]]
+                        :offset   offset
+                        :limit    limit})))
 
-(defn update-piece [piece-id set-map]
+(defn select-piece-by-knot [knot]
+  (first
+    (j/query db-config (sql/format
+                         {:select :*
+                          :from   :knot_piece
+                          :where  [:= :knot knot]}))))
+
+
+(defn select-piece-prev [update-time]
+  (first
+    (j/query db-config (sql/format
+                         {:select   :*
+                          :from     :knot_piece
+                          :where    [:< :update_time update-time]
+                          :order-by [[:update-time :desc]]
+                          :limit    1}))))
+
+(defn select-piece-next [update-time]
+  (first
+    (j/query db-config (sql/format
+                         {:select   :*
+                          :from     :knot_piece
+                          :where    [:> :update_time update-time]
+                          :order-by [[:update-time :asc]]
+                          :limit    1}))))
+
+(defn select-piece-todays [month-day]
+  (j/query db-config (sql/format
+                       {:select   [:base_year
+                                   [[:max :id] :id]]
+                        :from     :knot_piece
+                        :where    [:= :base_month_day month-day]
+                        :group-by [:base_year]
+                        :order-by [[:base_year :desc]]})))
+
+(defn select-piece-id-lower-base [month-day year]
+  (first
+    (j/query db-config (sql/format
+                         {:select   :*
+                          :from     :knot_piece
+                          :where    [:and [:= :base_month_day month-day]
+                                     [:< :base_year year]]
+                          :order-by [[:base_year :desc]
+                                     [:update-time :desc]]
+                          :limit    1}))))
+
+
+(defn insert-piece [content]
+  (first
+    (j/query db-config (sql/format
+                         {:insert-into :knot_piece
+                          :values      [{:content        content
+                                         :base_year      (now-time-str {:style :yyyy})
+                                         :base_month_day (now-time-str {:style :mmdd})}]
+                          :returning   [:id]}))))
+
+(defn update-piece [piece-id data]
   (j/execute! db-config (sql/format
                           {:update :knot_piece
-                           :set set-map
-                           :where [:= :id piece-id]})))
+                           :set    (merge data
+                                          {:update_time :%now})
+                           :where  [:= :id piece-id]})))
 
-(comment
-  (insert-piece "alla")
-  (update-piece 1 {:base_ymd "20220101"
-                   :base_md "0101"
-                   :subject "sj"})
 
-  (select-piece 1)
-
-  )
 (defn delete-piece [piece-id]
   (j/execute! db-config (sql/format
                           {:delete-from :knot_piece
                            :where       [:= :id piece-id]})))
 
+(defn select-link [id]
+  (first
+    (j/query db-config (sql/format
+                         {:select :*
+                          :from   :knot_link
+                          :where  [:= :id id]}))))
+
+(defn select-link-list-by-knot [knot-id]
+  (j/query db-config (sql/format
+                       {:select   [:link.piece_id
+                                   :piece.update_time]
+                        :from     [[:knot_link :link]]
+                        :join     [[:knot_piece :piece] [:= :link.piece_id :piece.id]]
+                        :order-by [[:link.create_time :desc]]
+                        :where    [:= :link.knot_id knot-id]})))
+
+
+(defn select-link-list-by-piece [piece-id]
+  (j/query db-config (sql/format
+                       {:select   [:link.knot_id
+                                   :piece.knot]
+                        :from     [[:knot_link :link]]
+                        :join     [[:knot_piece :piece] [:= :link.knot_id :piece.id]]
+                        :order-by [[:link.create_time :desc]]
+                        :where    [:= :link.piece_id piece-id]})))
+
+
+
 (defn insert-link [knot-id piece-id]
-  (j/execute! db-config (sql/format
-                          {:insert-into :knot_link
-                           :values      {:knot_id  knot-id
-                                         :piece_id piece-id}}))
+  (first
+    (j/query db-config (sql/format
+                         {:insert-into :knot_link
+                          :values      [{:knot_id  knot-id
+                                         :piece_id piece-id}]
+                          :returning   [:id]}))))
+
+(defn delete-link
+  ([link-id]
+   (j/execute! db-config (sql/format
+                           {:delete-from :knot_link
+                            :where       [:= :id link-id]})))
+  ([knot-id piece-id]
+   (j/execute! db-config (sql/format
+                           {:delete-from :knot_link
+                            :where       [:and [:= :knot_id knot-id]
+                                          [:= :piece_id piece-id]]}))))
+
+
+
+(comment
+  (insert-piece "2025")
+
+  (update-piece 1 {:base_ymd "20220101"
+                   :base_md  "0101"
+                   :knot     "sj"})
+
+  (select-piece-by-id 2)
+  (select-piece-by-id 3)
+  (delete-piece 1)
+
+  (insert-link 2 3)
+
   )
-(defn delete-link [link-id]
-  (j/execute! db-config (sql/format
-                          {:delete-from :knot_link
-                           :where       [:= :id link-id]})))
+
+
 
 (comment
   (j/execute! db-config
@@ -57,15 +163,16 @@
                        "id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL, "
                        "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, "
                        "update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, "
-                       "base_ymd CHAR(8) NOT NULL, "
-                       "base_md CHAR(4) NOT NULL, "
+                       "base_year CHAR(4) NOT NULL, "
+                       "base_month_day CHAR(4) NOT NULL, "
                        "content TEXT NULL, "
-                       "subject VARCHAR(200) NULL, "
+                       "summary VARCHAR(300) NULL, "
+                       "knot VARCHAR(100) NULL, "
                        "PRIMARY KEY (id))"]}))
 
   (j/execute! db-config
               (sql/format
-                {:raw ["CREATE UNIQUE INDEX ux_knot_piece ON knot_piece (subject)"]}))
+                {:raw ["CREATE UNIQUE INDEX ux_knot_piece ON knot_piece (knot)"]}))
 
 
   (j/execute! db-config
@@ -82,3 +189,13 @@
                 {:raw ["CREATE UNIQUE INDEX ux_knot_link ON knot_link (knot_id, piece_id)"]}))
 
   )
+
+
+
+
+
+
+
+
+
+

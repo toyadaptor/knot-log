@@ -8,4 +8,3 @@
                 :user        (env :db-user)
                 :password    (env :db-password)
                 :auto-commit true})
-
