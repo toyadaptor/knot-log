@@ -6,7 +6,7 @@
 (defn knot-get-or-create [knot]
   (if-let [knot (mapper/select-piece-by-knot knot)]
     knot
-    (let [{:keys [id]} (mapper/insert-piece nil)]
+    (let [{:keys [id]} (mapper/insert-piece ".")]
       (mapper/update-piece id {:knot knot})
       (mapper/select-piece-by-id id))))
 
@@ -33,7 +33,8 @@
        :link-in   (link-list-in piece-id)
        :prev-date (mapper/select-piece-prev update-time)
        :next-date (mapper/select-piece-next update-time)
-       :todays    (mapper/select-piece-todays (:base_month_day piece))})))
+       ;:todays    (mapper/select-piece-todays (:base_month_day piece))
+       })))
 
 
 (defn handle-piece-update [id data]
@@ -48,15 +49,12 @@
 (defn handle-piece-recent-list [{:keys [offset limit]}]
   (mapper/select-piece-recent-list offset limit))
 
-(defn handle-knot-link-create [knot_id piece_id]
-  (mapper/insert-link knot_id piece_id))
+(defn handle-knot-link-create [piece_id knot]
+  (let [k (knot-get-or-create knot)]
+    (mapper/insert-link (:id k) piece_id)))
 
-(defn handle-link-create [{:keys [piece-id knot-name]}]
-  (link-create piece-id knot-name))
-
-
-(defn handle-piece-create [{:keys [content]}]
-  (piece-create content))
+(defn handle-knot-link-delete [link-id]
+  (mapper/delete-link link-id))
 
 (comment
   (mapper/insert-piece "asdf")
@@ -81,6 +79,8 @@
 
   (knot-get-or-create "ping")
   (handle-piece-recent-list {:offset 2 :limit 2}))
+
+
 
 
 

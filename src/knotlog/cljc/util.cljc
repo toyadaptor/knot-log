@@ -15,6 +15,9 @@
     (clojure.string/replace (t/format (t/formatter "yyyyMMddhhmmss") zoned-date-time)
                             #"0" "o")
 
+    (= :y style)
+    (t/format (t/formatter "yyyy") zoned-date-time)
+
     (= :md style)
     (t/format (t/formatter "MMdd") zoned-date-time)))
 

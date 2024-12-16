@@ -32,7 +32,7 @@
 (defn select-piece-prev [update-time]
   (first
     (j/query db-config (sql/format
-                         {:select   :*
+                         {:select   [:id]
                           :from     :knot_piece
                           :where    [:< :update_time update-time]
                           :order-by [[:update-time :desc]]
@@ -41,7 +41,7 @@
 (defn select-piece-next [update-time]
   (first
     (j/query db-config (sql/format
-                         {:select   :*
+                         {:select   [:id]
                           :from     :knot_piece
                           :where    [:> :update_time update-time]
                           :order-by [[:update-time :asc]]
@@ -73,8 +73,8 @@
     (j/query db-config (sql/format
                          {:insert-into :knot_piece
                           :values      [{:content        content
-                                         :base_year      (now-time-str {:style :yyyy})
-                                         :base_month_day (now-time-str {:style :mmdd})}]
+                                         :base_year      (now-time-str {:style :y})
+                                         :base_month_day (now-time-str {:style :md})}]
                           :returning   [:id]}))))
 
 (defn update-piece [piece-id data]

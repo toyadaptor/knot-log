@@ -13,6 +13,7 @@
 
 (def piece-modal (r/atom nil))
 (def knot-modal (r/atom nil))
+(def link-modal (r/atom nil))
 
 
 (defn toggle-modal [state]
