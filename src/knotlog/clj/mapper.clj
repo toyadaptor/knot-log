@@ -109,13 +109,13 @@
 
 (defn select-link-list-by-piece [piece-id]
   (j/query db-config (sql/format
-                       {:select   [:link.knot_id
+                       {:select   [:link.id
+                                   :link.knot_id
                                    :piece.knot]
                         :from     [[:knot_link :link]]
                         :join     [[:knot_piece :piece] [:= :link.knot_id :piece.id]]
                         :order-by [[:link.create_time :desc]]
                         :where    [:= :link.piece_id piece-id]})))
-
 
 
 (defn insert-link [knot-id piece-id]

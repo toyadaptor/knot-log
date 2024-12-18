@@ -32,12 +32,12 @@
                                                    (service/handle-piece-update (Long/parseLong id) {:content content})
                                                    {:status 200 :body {}})}}]
 
-      ["/pieces/:id/knot" {:post {:path-params {:id int?}
-                                  :body-params {:knot string?}
-                                  :handler     (fn [{{:keys [id]}   :path-params
-                                                     {:keys [knot]} :body-params}]
-                                                 (service/handle-piece-update (Long/parseLong id) {:knot knot})
-                                                 {:status 200 :body {}})}}]
+      ["/pieces/:id/knot" {:put {:path-params {:id int?}
+                                 :body-params {:knot string?}
+                                 :handler     (fn [{{:keys [id]}   :path-params
+                                                    {:keys [knot]} :body-params}]
+                                                (service/handle-piece-update (Long/parseLong id) {:knot knot})
+                                                {:status 200 :body {}})}}]
 
       ["/knot-links" {:post {:body-params {:piece_id int?
                                            :knot     string?}
@@ -46,7 +46,7 @@
                                             {:status 200 :body {}})}}]
       ["/knot-links/:id" {:delete {:path-params {:id int?}
                                    :handler     (fn [{{:keys [id]} :path-params}]
-                                                  (service/handle-knot-link-delete id)
+                                                  (service/handle-knot-link-delete (Long/parseLong id))
                                                   {:status 200 :body {}})}}]
 
       ["/login" {:post {:body-params {:password string?}

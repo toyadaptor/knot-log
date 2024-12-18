@@ -1,30 +1,30 @@
 (ns knotlog.cljs.component.link
   (:require [reagent.core :as r]
-            [reitit.frontend.easy :as rfe]
-            [knotlog.cljc.util :refer [iso-str-to base-date-str-to]]
             [knotlog.cljs.action :as s]
             [ajax.core :refer [POST]]))
 
 
 
-(defn link-component []
+(defn link-component [{:keys [is-open state-piece reload]}]
   (let [knot-name (r/atom "")]
     (letfn [(save []
-              (let [id (-> @s/state-piece :piece :id)]
-                (js/console.log "**" id @knot-name)
+              (let [id (-> @state-piece :piece :id)]
                 (POST (str "http://localhost:8000/api/knot-links")
                       {:response-format :json
                        :keywords?       true
                        :params          {:piece_id id
                                          :knot     @knot-name}
                        :handler         (fn [_]
-                                          (s/toggle-modal s/link-modal)
-                                          (s/get-piece id))
+                                          (reload)
+                                          (reset! is-open nil))
                        :error-handler   (fn [error]
                                           (js/console.error "Error:" error))})
-                ))]
+                ))
+            (cancel []
+              (reset! knot-name "")
+              (reset! is-open nil))]
       (fn []
-        [:div.modal {:class @s/link-modal}
+        [:div.modal {:class @is-open}
          [:div.modal-background]
          [:div.modal-content
           [:div.box
@@ -40,10 +40,9 @@
               "Submit"]]
             [:div.control
              [:button.button.is-danger.is-light
-              {:on-click #(s/toggle-modal s/link-modal)}
+              {:on-click #(cancel)}
               "Cancel"]]]]]
          [:button.modal-close.is-large {:aria-label "close"
-                                        :on-click   #(s/toggle-modal s/link-modal)}]]))))
-
+                                        :on-click   #(cancel)}]]))))
 
 
