@@ -11,6 +11,7 @@
                  [metosin/reitit "0.7.2"]
                  [ring-cors "0.1.13"]
                  [http-kit "2.3.0"]
+                 [cljs-http "0.1.46"]
                  [buddy/buddy-auth "3.0.323"]
                  [buddy/buddy-sign "3.5.351"]
                  [clj-time "0.15.2"]

@@ -1,42 +1,86 @@
 (ns knotlog.cljs.main
+  (:refer-clojure :exclude [parse-long])
   (:require [reagent.core :as r]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]
             [reitit.coercion.spec :as rss]
-            [knotlog.cljs.action :as s]
+            [cljs-http.client :as http]
+            [cljs.core.async :refer [go <!]]
             [knotlog.cljs.pieces :as pieces]
             ["react-dom/client" :refer [createRoot]]))
 
 (defonce root (r/atom nil))
 (defonce app-state (r/atom nil))
+(def is-login (r/atom false))
+
+(defn is-cookie-auth []
+  (let [cookies (js/document.cookie.split "; ")]
+    (some (fn [cookie]
+            (let [[k v] (clojure.string/split cookie #"=")]
+              (when (= k "login")
+                (= "1" v))))
+          cookies)))
 
 (defn not-found []
   [:section.section
    [:h1.is-size-3 "4o4 not found"]])
 
 (defn template [{:keys [key view]}]
-  (r/create-class
-    {:reagent-render
-     (fn []
-       [:div.container.is-max-tablet
-        [:header [:h1.is-size-3 "KNOT"]]
+  (let [search-type (r/atom "text")
+        search-text (r/atom "")]
+    (letfn [(search []
+              (cond (= ".nn" @search-text)
+                    (do
+                      (reset! search-type "password")
+                      (reset! search-text ""))
 
-        [view {:id key}]
+                    (= ".bi" @search-text)
+                    (logout)
 
-        [:br]
+                    (and (= "password" @search-type)
+                         (not (nil? @search-text)))
+                    (login @search-text)
 
-        [:form {:on-submit (fn [e]
-                             (.preventDefault e))}
-         [:input.input {:type        @s/search-type
-                        :value       @s/search-text
-                        :on-change   #(reset! s/search-text (-> % .-target .-value))
-                        :on-key-down (fn [e]
-                                       (when (= "Enter" (.-key e)) ;; 엔터 키 감지
-                                         (s/search-action)))
-                        }]]
+                    :else nil))
+            (login [password]
+              (go (let [{:keys [status]} (<! (http/post "http://localhost:8000/api/login"
+                                                        {:json-params {:password password}}))]
+                    (if (= 200 status)
+                      (do (reset! is-login true)
+                          (reset! search-type "text")
+                          (reset! search-text ""))
+                      (js/console.log "error")))))
+            (logout []
+              (go (let [{:keys [status]} (<! (http/post "http://localhost:8000/api/private/logout"))]
+                    (if (= 200 status)
+                      (do (reset! is-login false)
+                          (reset! search-type "text")
+                          (reset! search-text ""))
+                      (js/console.log "error")))))
+            ]
+      (r/create-class
+        {:reagent-render
+         (fn []
+           [:div.container.is-max-tablet
+            [:header [:h1.is-size-3 "KNOT"]]
 
-        [:span.icon-text [:i.fa-solid.fa-angles-right]]
-        [:footer [:small [:i "powered by knotlog"]]]])}))
+            [view {:id       key
+                   :is-login is-login}]
+
+            [:br]
+
+            [:form {:on-submit (fn [e]
+                                 (.preventDefault e))}
+             [:input.input {:type        @search-type
+                            :value       @search-text
+                            :on-change   #(reset! search-text (-> % .-target .-value))
+                            :on-key-down (fn [e]
+                                           (when (= "Enter" (.-key e)) ;; 엔터 키 감지
+                                             (search)))
+                            }]]
+
+            [:span.icon-text [:i.fa-solid.fa-angles-right]]
+            [:footer [:small [:i "powered by knotlog"]]]])}))))
 
 (def routes
   [["/" {:name :home
@@ -70,14 +114,12 @@
         (reset! app-state new-match))
       {:use-fragment false}))
 
-
-  (js/console.log "main after-load.")
   (let [container (.getElementById js/document "app")]
     (if-not @root
       (reset! root (createRoot container))
       nil)
-    (.render @root (r/as-element [current-page]))))
-
+    (.render @root (r/as-element [current-page])))
+  (reset! is-login (is-cookie-auth)))
 
 (defn ^:export main []
   (mount-root))

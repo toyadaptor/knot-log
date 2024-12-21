@@ -25,30 +25,6 @@
                             :handler     (fn [{{:keys [id]} :path-params}]
                                            {:status 200 :body (service/handle-piece (Long/parseLong id))})}}]
 
-      ["/pieces/:id/content" {:put {:path-params {:id int?}
-                                    :body-params {:content string?}
-                                    :handler     (fn [{{:keys [id]}      :path-params
-                                                       {:keys [content]} :body-params}]
-                                                   (service/handle-piece-update (Long/parseLong id) {:content content})
-                                                   {:status 200 :body {}})}}]
-
-      ["/pieces/:id/knot" {:put {:path-params {:id int?}
-                                 :body-params {:knot string?}
-                                 :handler     (fn [{{:keys [id]}   :path-params
-                                                    {:keys [knot]} :body-params}]
-                                                (service/handle-piece-update (Long/parseLong id) {:knot knot})
-                                                {:status 200 :body {}})}}]
-
-      ["/knot-links" {:post {:body-params {:piece_id int?
-                                           :knot     string?}
-                             :handler     (fn [{{:keys [piece_id knot]} :body-params}]
-                                            (service/handle-knot-link-create piece_id knot)
-                                            {:status 200 :body {}})}}]
-      ["/knot-links/:id" {:delete {:path-params {:id int?}
-                                   :handler     (fn [{{:keys [id]} :path-params}]
-                                                  (service/handle-knot-link-delete (Long/parseLong id))
-                                                  {:status 200 :body {}})}}]
-
       ["/login" {:post {:body-params {:password string?}
                         :handler     (fn [{{:keys [password]} :body-params}]
                                        (let [valid? (some-> auth/auth-data
@@ -74,20 +50,35 @@
 
       ["/private"
        {:middleware [[auth/wrap-role-authorization [:admin]]]}
+
+       ["/pieces/:id/content" {:put {:path-params {:id int?}
+                                     :body-params {:content string?}
+                                     :handler     (fn [{{:keys [id]}      :path-params
+                                                        {:keys [content]} :body-params}]
+                                                    (service/handle-piece-update (Long/parseLong id) {:content content})
+                                                    {:status 200 :body {}})}}]
+
+       ["/pieces/:id/knot" {:put {:path-params {:id int?}
+                                  :body-params {:knot string?}
+                                  :handler     (fn [{{:keys [id]}   :path-params
+                                                     {:keys [knot]} :body-params}]
+                                                 (service/handle-piece-update (Long/parseLong id) {:knot knot})
+                                                 {:status 200 :body {}})}}]
+
+       ["/knot-links" {:post {:body-params {:piece_id int?
+                                            :knot     string?}
+                              :handler     (fn [{{:keys [piece_id knot]} :body-params}]
+                                             (service/handle-knot-link-create piece_id knot)
+                                             {:status 200 :body {}})}}]
+       ["/knot-links/:id" {:delete {:path-params {:id int?}
+                                    :handler     (fn [{{:keys [id]} :path-params}]
+                                                   (service/handle-knot-link-delete (Long/parseLong id))
+                                                   {:status 200 :body {}})}}]
        ["/logout" {:post {:handler (fn [_]
                                      {:status  200
                                       :cookies {"token" {:value "" :max-age 0 :path "/"}
                                                 "login" {:value "" :max-age 0 :path "/"}}})}}]
-
-       ["/piece" {:post {:body-params {:content string?
-                                       :knot    string?}
-                         :handler     (fn [request]
-                                        (service/piece-create (:body-params request)))}}]
-
-       ["/main" {:get {:parameters {}
-                       :handler    (fn [_]
-                                     {:status 200
-                                      :body   {"res" "main"}})}}]]]]
+       ]]]
 
 
     {:data {:coercion   reitit.coercion.spec/coercion
@@ -111,7 +102,7 @@
 
 (def app
   (-> app-route
-      (wrap-cors :access-control-allow-origin [#"http://localhost:8888"]
+      (wrap-cors :access-control-allow-origin [#".*"]
                  :access-control-allow-credentials "true"
                  :access-control-allow-methods [:get :post :put :delete :options]
                  :access-control-allow-headers ["Content-Type" "Authorization"])))

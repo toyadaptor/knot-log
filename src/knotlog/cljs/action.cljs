@@ -34,22 +34,7 @@
 
 
 
-(defn search-action []
-  (cond (= ".nn" @search-text)
-        (reset! search-type "password")
 
-        (= ".bi" @search-text)
-        (reset! search-type "text")
-
-        (and (= "password" @search-type)
-             (not (nil? @search-text)))
-        (login @search-text)
-
-        (and (= "text" @search-type)
-             (= "pp"))
-        (private-main)
-        :else nil)
-  (reset! search-text ""))
 
 
 
