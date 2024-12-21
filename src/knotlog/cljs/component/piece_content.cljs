@@ -1,13 +1,14 @@
 (ns knotlog.cljs.component.piece-content
   (:refer-clojure :exclude [parse-long])
-  (:require [cljs-http.client :as http]
+  (:require [knotlog.cljs.helper :refer [get-backend-url]]
+            [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]))
 
 (defn piece-content-component [{:keys [is-open state-piece reload]}]
   (letfn [(save []
             (let [id (-> @state-piece :piece :id)]
               (go
-                (let [{:keys [status]} (<! (http/put (str "http://localhost:8000/api/private/pieces/" id "/content")
+                (let [{:keys [status]} (<! (http/put (get-backend-url (str "/api/private/pieces/" id "/content"))
                                                      {:with-credentials? true
                                                       :json-params       {:content (-> @state-piece :piece :content)}}))]
                   (if (= 200 status)

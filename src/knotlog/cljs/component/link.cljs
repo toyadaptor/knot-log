@@ -1,6 +1,7 @@
 (ns knotlog.cljs.component.link
   (:refer-clojure :exclude [parse-long])
-  (:require [cljs-http.client :as http]
+  (:require [knotlog.cljs.helper :refer [get-backend-url]]
+            [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [reagent.core :as r]))
 
@@ -9,7 +10,7 @@
     (letfn [(save []
               (let [id (-> @state-piece :piece :id)]
                 (go
-                  (let [{:keys [status]} (<! (http/post (str "http://localhost:8000/api/private/knot-links")
+                  (let [{:keys [status]} (<! (http/post (get-backend-url (str "/api/private/knot-links"))
                                                         {:with-credentials? true
                                                          :json-params       {:piece_id id
                                                                              :knot     @knot-name}}))]

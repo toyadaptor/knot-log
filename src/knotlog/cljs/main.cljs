@@ -3,11 +3,11 @@
   (:require [reagent.core :as r]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]
-            [reitit.coercion.spec :as rss]
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [knotlog.cljs.helper :refer [is-cookie-auth]]
             [knotlog.cljs.pieces :as pieces]
+            [knotlog.cljs.helper :refer [get-backend-url]]
             ["react-dom/client" :refer [createRoot]]))
 
 (defonce root (r/atom nil))
@@ -37,7 +37,7 @@
 
                     :else nil))
             (login [password]
-              (go (let [{:keys [status]} (<! (http/post "http://localhost:8000/api/login"
+              (go (let [{:keys [status]} (<! (http/post (get-backend-url "/api/login")
                                                         {:json-params {:password password}}))]
                     (if (= 200 status)
                       (do (reset! is-login true)
@@ -45,7 +45,7 @@
                           (reset! search-text ""))
                       (js/console.log "error")))))
             (logout []
-              (go (let [{:keys [status]} (<! (http/post "http://localhost:8000/api/private/logout"))]
+              (go (let [{:keys [status]} (<! (http/post (get-backend-url "/api/private/logout")))]
                     (if (= 200 status)
                       (do (reset! is-login false)
                           (reset! search-type "text")
@@ -103,7 +103,7 @@
   (when-not @initialized?
     (reset! initialized? true)
     (rfe/start!
-      (rf/router routes {:data {:coercion rss/coercion}})
+      (rf/router routes)
       (fn [new-match]
         (reset! app-state new-match))
       {:use-fragment false}))

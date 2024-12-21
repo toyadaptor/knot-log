@@ -1,7 +1,7 @@
 (ns knotlog.cljs.component.piece-content-new
   (:refer-clojure :exclude [parse-long])
   (:require [reagent.core :as r]
-            [knotlog.cljs.helper :refer [update-query-path]]
+            [knotlog.cljs.helper :refer [update-query-path get-backend-url]]
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]))
 
@@ -9,7 +9,7 @@
   (let [content-new (r/atom "")]
     (letfn [(save []
               (go
-                (let [{:keys [status body]} (<! (http/post (str "http://localhost:8000/api/private/pieces")
+                (let [{:keys [status body]} (<! (http/post (get-backend-url "/api/private/pieces")
                                                       {:with-credentials? true
                                                        :json-params       {:content @content-new}}))]
                   (if (= 200 status)

@@ -4,6 +4,7 @@
             [reitit.frontend.easy :as rfe]
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
+            [knotlog.cljs.helper :refer [get-backend-url]]
             [knotlog.cljc.util :refer [iso-str-to base-date-str-to]]
             [knotlog.cljs.component.link :refer [link-component]]
             [knotlog.cljs.component.piece-content :refer [piece-content-component]]
@@ -20,13 +21,13 @@
         state-piece (r/atom nil)]
     (letfn [(get-piece [piece-id]
               (go
-                (let [{:keys [status body]} (<! (http/get (str "http://localhost:8000/api/pieces/" piece-id)))]
+                (let [{:keys [status body]} (<! (http/get (get-backend-url (str "/api/pieces/" piece-id))))]
                   (if (= 200 status)
                     (reset! state-piece body)
                     (js/console.log "error")
                     ))))
             (delete-link [link-id]
-              (let [{:keys [status]} (<! (http/delete (str "http://localhost:8000/api/knot-links/" link-id)))]
+              (let [{:keys [status]} (<! (http/delete (get-backend-url (str "/api/knot-links/" link-id))))]
                 (if (= 200 status)
                   nil
                   (js/console.log "error"))))

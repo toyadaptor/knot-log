@@ -3,7 +3,7 @@
             [tick.locale-en-us])
   #?(:clj (:import [java.sql Timestamp])))
 
-(defn time-format [zoned-date-time & {:keys [style] :or {style :ymd}}]
+(defn time-format [zoned-date-time {:keys [style] :or {style :ymd}}]
   (cond
     (= :ymd style)
     (t/format (t/formatter "yyyyMMdd") zoned-date-time)

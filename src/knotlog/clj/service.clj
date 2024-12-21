@@ -59,6 +59,7 @@
   (mapper/select-piece-by-knot "knot")
 
   (now-time-str {:style :md})
+  (now-time-str {:style :md})
 
   (piece-create "asdf")
 
