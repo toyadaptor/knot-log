@@ -51,6 +51,10 @@
       ["/private"
        {:middleware [[auth/wrap-role-authorization [:admin]]]}
 
+       ["/pieces" {:post {:body-params {:content string?}
+                          :handler     (fn [{{:keys [content]} :body-params}]
+                                         {:status 200 :body (service/handle-piece-create content)})}}]
+
        ["/pieces/:id/content" {:put {:path-params {:id int?}
                                      :body-params {:content string?}
                                      :handler     (fn [{{:keys [id]}      :path-params
@@ -108,6 +112,5 @@
                  :access-control-allow-headers ["Content-Type" "Authorization"])))
 
 (defn start []
-  ;(jetty/run-jetty app {:port 8000, :join? false})
   (run-server app {:port 8000})
   (println "start!"))

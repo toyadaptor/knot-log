@@ -1,20 +1,19 @@
 (ns knotlog.cljs.component.piece-knot
-  (:require [reagent.core :as r]
-            [ajax.core :refer [PUT]]
-            [knotlog.cljs.action :as s]))
+  (:refer-clojure :exclude [parse-long])
+  (:require [cljs-http.client :as http]
+            [cljs.core.async :refer [go <!]]))
 
 (defn piece-knot-component [{:keys [is-open state-piece reload]}]
   (letfn [(save []
             (let [id (-> @state-piece :piece :id)]
-              (PUT (str "http://localhost:8000/api/pieces/" id "/knot")
-                   {:response-format :json
-                    :keywords?       true
-                    :params          {:knot (-> @state-piece :piece :knot)}
-                    :handler         (fn [_]
-                                       (reload)
-                                       (reset! is-open nil))
-                    :error-handler   (fn [error]
-                                       (js/console.error "Error:" error))})))
+              (go
+                (let [{:keys [status]} (<! (http/put (str "http://localhost:8000/api/private/pieces/" id "/knot")
+                                                     {:with-credentials? true
+                                                      :json-params       {:knot (-> @state-piece :piece :knot)}}))]
+                  (if (= 200 status)
+                    (do
+                      (reload)
+                      (reset! is-open nil)))))))
           (cancel []
             (reload)
             (reset! is-open nil))]

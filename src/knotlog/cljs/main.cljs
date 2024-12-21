@@ -6,6 +6,7 @@
             [reitit.coercion.spec :as rss]
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
+            [knotlog.cljs.helper :refer [is-cookie-auth]]
             [knotlog.cljs.pieces :as pieces]
             ["react-dom/client" :refer [createRoot]]))
 
@@ -13,13 +14,6 @@
 (defonce app-state (r/atom nil))
 (def is-login (r/atom false))
 
-(defn is-cookie-auth []
-  (let [cookies (js/document.cookie.split "; ")]
-    (some (fn [cookie]
-            (let [[k v] (clojure.string/split cookie #"=")]
-              (when (= k "login")
-                (= "1" v))))
-          cookies)))
 
 (defn not-found []
   [:section.section

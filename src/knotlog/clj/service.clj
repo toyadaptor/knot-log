@@ -36,15 +36,11 @@
        ;:todays    (mapper/select-piece-todays (:base_month_day piece))
        })))
 
+(defn handle-piece-create [content]
+  (mapper/insert-piece content))
 
 (defn handle-piece-update [id data]
   (mapper/update-piece id data))
-
-(comment
-
-  (link-create 2 "knot")
-
-  (handle-piece 2))
 
 (defn handle-piece-recent-list [{:keys [offset limit]}]
   (mapper/select-piece-recent-list offset limit))
@@ -79,6 +75,8 @@
 
   (knot-get-or-create "ping")
   (handle-piece-recent-list {:offset 2 :limit 2}))
+
+
 
 
 

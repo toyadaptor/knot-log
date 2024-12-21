@@ -2,18 +2,19 @@
   (:refer-clojure :exclude [parse-long])
   (:require [reagent.core :as r]
             [reitit.frontend.easy :as rfe]
-            [ajax.core :refer [GET DELETE POST]]
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [knotlog.cljc.util :refer [iso-str-to base-date-str-to]]
             [knotlog.cljs.component.link :refer [link-component]]
             [knotlog.cljs.component.piece-content :refer [piece-content-component]]
+            [knotlog.cljs.component.piece-content-new :refer [piece-content-component-new]]
             [knotlog.cljs.component.piece-knot :refer [piece-knot-component]]))
 
 
 
 (defn pieces-component [{:keys [id is-login]}]
   (let [piece-content-modal (r/atom nil)
+        piece-content-new-modal (r/atom nil)
         piece-knot-modal (r/atom nil)
         piece-link-modal (r/atom nil)
         state-piece (r/atom nil)]
@@ -44,6 +45,8 @@
               [piece-content-component {:is-open     piece-content-modal
                                         :state-piece state-piece
                                         :reload      reload}]
+              [piece-content-component-new {:is-open   piece-content-new-modal
+                                            :get-piece get-piece}]
               [piece-knot-component {:is-open     piece-knot-modal
                                      :state-piece state-piece
                                      :reload      reload}]
@@ -51,17 +54,17 @@
                                :state-piece state-piece
                                :reload      reload}]
               [:div
-              (if @is-login
-                [:div.tags
-                 [:span.tag.is-info
-                  [:a.has-text-black {:on-click #(reset! piece-content-modal "is-active")}
-                   "content"]]
-                 [:span.tag.is-warning
-                  [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
-                   "knot"]]
-                 [:span.tag
-                  [:a.has-text-black {:on-click #(reset! piece-content-modal "is-active")}
-                   "piece+"]]])
+               (if @is-login
+                 [:div.tags
+                  [:span.tag.is-info
+                   [:a.has-text-black {:on-click #(reset! piece-content-modal "is-active")}
+                    "content"]]
+                  [:span.tag.is-warning
+                   [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
+                    "knot"]]
+                  [:span.tag.is-primary
+                   [:a.has-text-black {:on-click #(reset! piece-content-new-modal "is-active")}
+                    "piece+"]]])
 
                [:h1.is-size-3 (or (-> p :piece :knot) "*")]
 
@@ -80,7 +83,7 @@
                      [:button.delete
                       {:on-click #(delete-link (:id link))}])])
                 (if @is-login
-                  [:span.tag
+                  [:span.tag.is-danger
                    [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
                     "knot+"]])]
 

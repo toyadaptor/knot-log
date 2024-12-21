@@ -1,25 +1,22 @@
 (ns knotlog.cljs.component.link
-  (:require [reagent.core :as r]
-            [knotlog.cljs.action :as s]
-            [ajax.core :refer [POST]]))
-
-
+  (:refer-clojure :exclude [parse-long])
+  (:require [cljs-http.client :as http]
+            [cljs.core.async :refer [go <!]]
+            [reagent.core :as r]))
 
 (defn link-component [{:keys [is-open state-piece reload]}]
   (let [knot-name (r/atom "")]
     (letfn [(save []
               (let [id (-> @state-piece :piece :id)]
-                (POST (str "http://localhost:8000/api/knot-links")
-                      {:response-format :json
-                       :keywords?       true
-                       :params          {:piece_id id
-                                         :knot     @knot-name}
-                       :handler         (fn [_]
-                                          (reload)
-                                          (reset! is-open nil))
-                       :error-handler   (fn [error]
-                                          (js/console.error "Error:" error))})
-                ))
+                (go
+                  (let [{:keys [status]} (<! (http/post (str "http://localhost:8000/api/private/knot-links")
+                                                        {:with-credentials? true
+                                                         :json-params       {:piece_id id
+                                                                             :knot     @knot-name}}))]
+                    (if (= 200 status)
+                      (do
+                        (reload)
+                        (reset! is-open nil)))))))
             (cancel []
               (reset! knot-name "")
               (reset! is-open nil))]
