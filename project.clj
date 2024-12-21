@@ -32,9 +32,7 @@
                                      :modules         {:main {:entries [knotlog.cljs.main]}}
                                      :devtools        {:after-load knotlog.cljs.main/main}
                                      :closure-defines {knotlog.cljs.config/backend-url ~(get (read-string (slurp ".lein-env")) :backend-url)}}}
-                :dev-http     {8888 "resources/public"
-                               :ssl {:cert "localhost.crt"
-                                     :key  "localhost.key"}}
+                :dev-http     {8888 "resources/public"}
                 :http         {:port 8800}
                 :npm-deps     {:react     "^19.0.0"
                                :react-dom "^19.0.0"}})

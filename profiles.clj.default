@@ -1,0 +1,8 @@
+{:dev {:env {:db-host "
+             :db-name "
+             :db-user "
+             :db-password "
+             :db-port ""
+             :backend-url ""
+             :auth-secret ""
+             :auth-password ""}}}
