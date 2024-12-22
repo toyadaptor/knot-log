@@ -12,6 +12,14 @@
                                :from   :knot_piece
                                :where  [:= :id piece-id]}))))
 
+(defn select-piece-latest []
+  (first (j/query db-config (sql/format
+                              {:select   :*
+                               :from     :knot_piece
+                               :where    [:= :knot nil]
+                               :order-by [[:update_time :desc]]
+                               :limit    1}))))
+
 (defn select-piece-recent-list [offset limit]
   (j/query db-config (sql/format
                        {:select   :*

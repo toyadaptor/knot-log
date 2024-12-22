@@ -6,7 +6,8 @@
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [knotlog.cljs.helper :refer [is-cookie-auth]]
-            [knotlog.cljs.pieces :as pieces]
+            [knotlog.cljs.pieces :refer [pieces-component]]
+            [knotlog.cljs.index :refer [index-component]]
             [knotlog.cljs.helper :refer [get-backend-url]]
             ["react-dom/client" :refer [createRoot]]))
 
@@ -77,14 +78,11 @@
             [:footer [:small [:i "powered by knotlog"]]]])}))))
 
 (def routes
-  [["/" {:name :home
-         :view (fn [] [:div [:h1 "hi."]
-                       [:a {:href     "/days"
-                            :on-click (fn [_]
-                                        (rfe/push-state ::days))} "days"]])}]
+  [["/" {:name :index
+         :view index-component}]
    ["/pieces/:id" {:name       :piece
                    :parameters {:path {:id string?}}
-                   :view       pieces/pieces-component}]
+                   :view       pieces-component}]
    ["/4o4" {:name ::not-found
             :view not-found}]])
 

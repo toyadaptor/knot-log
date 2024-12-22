@@ -21,6 +21,8 @@
                             {:status 200 :body {:res "hi"}})}}]
 
      ["/api"
+      ["/piece-latest" {:get {:handler (fn [_]
+                                         {:status 200 :body (service/handle-piece-latest)})}}]
       ["/pieces/:id" {:get {:path-params {:id int?}
                             :handler     (fn [{{:keys [id]} :path-params}]
                                            {:status 200 :body (service/handle-piece (Long/parseLong id))})}}]

@@ -16,14 +16,18 @@
     (mapper/select-link id)))
 
 (defn piece-create [content]
-  (let [piece-id (mapper/insert-piece content)]
-    (link-create piece-id (now-time-str {:style :md}))))
+  (mapper/insert-piece content))
 
 (defn link-list-in [piece-id]
   (mapper/select-link-list-by-piece piece-id))
 
 (defn link-list-out [knot-id]
   (mapper/select-link-list-by-knot knot-id))
+
+(defn handle-piece-latest []
+  (if-let [piece (mapper/select-piece-latest)]
+    {:id (:id piece)}
+    (piece-create "hi")))
 
 (defn handle-piece [piece-id]
   (if-let [piece (mapper/select-piece-by-id piece-id)]
@@ -52,30 +56,9 @@
 (defn handle-knot-link-delete [link-id]
   (mapper/delete-link link-id))
 
-(comment
-  (mapper/insert-piece "asdf")
-  (mapper/update-piece 1 {:knot "knot"})
-  (mapper/update-piece 1 {:base_year "2025"})
-  (mapper/select-piece-by-knot "knot")
-
-  (now-time-str {:style :md})
-  (now-time-str {:style :md})
-
-  (piece-create "asdf")
-
-  (link-list-out 6)
-  (link-list-in 2)
-
-  (mapper/insert-link 6 2)
-  (mapper/insert-link 6 3)
 
 
 
-  (link-create {:piece-id 2 :knot-name "soso"})
-  (link-create {:piece-id 4 :knot-name "hehe"})
-
-  (knot-get-or-create "ping")
-  (handle-piece-recent-list {:offset 2 :limit 2}))
 
 
 
