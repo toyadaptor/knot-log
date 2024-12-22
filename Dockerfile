@@ -17,4 +17,4 @@ RUN echo "Building Docker image version: $APP_VERSION"
 
 COPY --from=build-jar "/knotlog/target/knotlog-*-standalone.jar" knotlog.jar
 
-ENTRYPOINT ["java", "-jar", "/knothink/knothink.jar"]
+ENTRYPOINT ["java", "-jar", "/knotlog/knotlog.jar"]
