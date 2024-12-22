@@ -24,6 +24,7 @@
             [lein-shadow "0.4.1"]]
   :source-paths ["src", "test"]
   :main knotlog.clj.main
+  :profiles {:uberjar {:aot :all}}
   :repl-options {:init-ns knotlog.clj.main}
   :shadow-cljs {:source-paths ["src"]
                 :builds       {:app {:target          :browser

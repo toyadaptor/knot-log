@@ -1,4 +1,5 @@
 (ns knotlog.clj.main
+  (:gen-class)
   (:require
     [knotlog.clj.router :as router]))
 
