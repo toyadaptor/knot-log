@@ -33,14 +33,16 @@
                                          (if valid?
                                            (let [claims {:user :admin
                                                          :exp  (time/plus (time/now) (time/seconds 3600))}
-                                                 token (jwt/sign claims auth/secret {:alg :hs512})]
+                                                 token (jwt/sign claims auth/auth-secret {:alg :hs512})]
                                              {:status  200 :body {:token token}
                                               :cookies {"token" {:value     token
+                                                                 :domain    auth/auth-domain
                                                                  :http-only true
                                                                  :secure    true
                                                                  :path      "/"
                                                                  :same-site :lax}
                                                         "login" {:value     "1"
+                                                                 :domain    auth/auth-domain
                                                                  :http-only false
                                                                  :secure    false
                                                                  :path      "/"

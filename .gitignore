@@ -19,6 +19,7 @@ node_modules/
 shadow-cljs.edn
 resources/public/js/
 resources/public/files/
+resources/public/index.html
 .firebaserc
 .firebase/
 .DS_Store

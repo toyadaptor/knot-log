@@ -8,8 +8,9 @@
 
 
 
-(def secret (env :auth-secret))
+(def auth-secret (env :auth-secret))
 (def auth-data {:admin (env :auth-password)})
+(def auth-domain (env :auth-domain))
 
 (defn wrap-role-authorization [handler roles]
   (fn [request]
@@ -29,7 +30,7 @@
         (handler request)))))
 
 (def auth-backend
-  (jws-backend {:secret secret :options {:alg :hs512}}))
+  (jws-backend {:secret auth-secret :options {:alg :hs512}}))
 
 (defn wrap-jwt-authentication [handler]
   (wrap-authentication handler auth-backend))
