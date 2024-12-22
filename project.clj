@@ -31,7 +31,9 @@
                                      :asset-path      "/js"
                                      :modules         {:main {:entries [knotlog.cljs.main]}}
                                      :devtools        {:after-load knotlog.cljs.main/main}
-                                     :closure-defines {knotlog.cljs.config/backend-url ~(get (read-string (slurp ".lein-env")) :backend-url)}}}
+                                     :closure-defines {knotlog.cljs.config/backend-url ~(try
+                                                                                          (get (read-string (slurp ".lein-env")) :backend-url)
+                                                                                          (catch java.io.FileNotFoundException _ ""))}}}
                 :dev-http     {8888 "resources/public"}
                 :http         {:port 8800}
                 :npm-deps     {:react     "^19.0.0"
