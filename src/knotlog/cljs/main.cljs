@@ -57,25 +57,23 @@
         {:reagent-render
          (fn []
            [:div.container.is-max-tablet
-            [:header [:h1.is-size-3 "KNOT"]]
+            [:section.section
+             [:header [:h1.is-size-5 "knot"]]
 
-            [view {:id       key
-                   :is-login is-login}]
+             [view {:id       key
+                    :is-login is-login}]
+             [:br]
 
-            [:br]
-
-            [:form {:on-submit (fn [e]
-                                 (.preventDefault e))}
-             [:input.input {:type        @search-type
-                            :value       @search-text
-                            :on-change   #(reset! search-text (-> % .-target .-value))
-                            :on-key-down (fn [e]
-                                           (when (= "Enter" (.-key e)) ;; 엔터 키 감지
-                                             (search)))
-                            }]]
-
-            [:span.icon-text [:i.fa-solid.fa-angles-right]]
-            [:footer [:small [:i "powered by knotlog"]]]])}))))
+             [:form {:on-submit (fn [e]
+                                  (.preventDefault e))}
+              [:input.input {:type        @search-type
+                             :value       @search-text
+                             :on-change   #(reset! search-text (-> % .-target .-value))
+                             :on-key-down (fn [e]
+                                            (when (= "Enter" (.-key e)) ;; 엔터 키 감지
+                                              (search)))
+                             }]]
+             [:footer [:small [:i "powered by knotlog"]]]]])}))))
 
 (def routes
   [["/" {:name :index

@@ -18,7 +18,7 @@
 (def app-router
   (ring/router
     [["/" {:get {:handler (fn [_]
-                            {:status 200 :body {:res "hi"}})}}]
+                            {:status 200 :body {:message "hi"}})}}]
 
      ["/api"
       ["/piece-latest" {:get {:handler (fn [_]
