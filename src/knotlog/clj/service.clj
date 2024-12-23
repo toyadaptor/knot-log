@@ -10,11 +10,6 @@
       (mapper/update-piece id {:knot knot})
       (mapper/select-piece-by-id id))))
 
-(defn link-create [piece-id knot-name]
-  (let [knot (knot-get-or-create knot-name)
-        {:keys [id]} (mapper/insert-link (:id knot) piece-id)]
-    (mapper/select-link id)))
-
 (defn piece-create [content]
   (mapper/insert-piece content))
 
@@ -45,9 +40,6 @@
 
 (defn handle-piece-update [id data]
   (mapper/update-piece id data))
-
-(defn handle-piece-recent-list [{:keys [offset limit]}]
-  (mapper/select-piece-recent-list offset limit))
 
 (defn handle-knot-link-create [piece_id knot]
   (let [k (knot-get-or-create knot)]

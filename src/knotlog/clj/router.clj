@@ -73,6 +73,15 @@
                                                  (service/handle-piece-update (Long/parseLong id) {:knot knot})
                                                  {:status 200 :body {}})}}]
 
+       ["/pieces/:id/date" {:put {:path-params {:id int?}
+                                  :body-params {:base_year      string?
+                                                :base_month_day string?}
+                                  :handler     (fn [{{:keys [id]}                       :path-params
+                                                     {:keys [base_year base_month_day]} :body-params}]
+                                                 (service/handle-piece-update (Long/parseLong id) {:base_year      base_year
+                                                                                                   :base_month_day base_month_day})
+                                                 {:status 200 :body {}})}}]
+
        ["/knot-links" {:post {:body-params {:piece_id int?
                                             :knot     string?}
                               :handler     (fn [{{:keys [piece_id knot]} :body-params}]

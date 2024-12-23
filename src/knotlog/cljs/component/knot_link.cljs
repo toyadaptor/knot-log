@@ -1,11 +1,11 @@
-(ns knotlog.cljs.component.link
+(ns knotlog.cljs.component.knot-link
   (:refer-clojure :exclude [parse-long])
   (:require [knotlog.cljs.helper :refer [get-backend-url]]
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [reagent.core :as r]))
 
-(defn link-component [{:keys [is-open state-piece reload]}]
+(defn knot-link-component [{:keys [is-open state-piece reload]}]
   (let [knot-name (r/atom "")]
     (letfn [(save []
               (let [id (-> @state-piece :piece :id)]
@@ -28,9 +28,11 @@
           [:div.box
            [:div.field
             [:div.control
-             [:input.input {:type      "text"
-                            :value     @knot-name
-                            :on-change #(reset! knot-name (-> % .-target .-value))}]]]
+             [:label.label "knot link"]
+             [:input.input {:type        "text"
+                            :placeholder "knot"
+                            :value       @knot-name
+                            :on-change   #(reset! knot-name (-> % .-target .-value))}]]]
            [:div.field.is-grouped
             [:div.control
              [:button.button.is-danger

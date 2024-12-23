@@ -28,8 +28,8 @@
           [:div.box
            [:div.field
             [:div.control
-             [:textarea.textarea {:placeholder "Textarea"
-                                  :value       @content-new
+             [:label.label "content"]
+             [:textarea.textarea {:value       @content-new
                                   :on-change   #(reset! content-new (-> % .-target .-value))}]]]
 
            [:div.field.is-grouped

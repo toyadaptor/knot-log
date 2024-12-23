@@ -6,10 +6,11 @@
             [cljs.core.async :refer [go <!]]
             [knotlog.cljs.helper :refer [get-backend-url]]
             [knotlog.cljc.util :refer [iso-str-to base-date-str-to]]
-            [knotlog.cljs.component.link :refer [link-component]]
+            [knotlog.cljs.component.knot-link :refer [knot-link-component]]
             [knotlog.cljs.component.piece-content :refer [piece-content-component]]
             [knotlog.cljs.component.piece-content-new :refer [piece-content-component-new]]
-            [knotlog.cljs.component.piece-knot :refer [piece-knot-component]]))
+            [knotlog.cljs.component.piece-knot :refer [piece-knot-component]]
+            [knotlog.cljs.component.piece-date :refer [piece-date-component]]))
 
 
 
@@ -17,6 +18,7 @@
   (let [piece-content-modal (r/atom nil)
         piece-content-new-modal (r/atom nil)
         piece-knot-modal (r/atom nil)
+        piece-basedate-modal (r/atom nil)
         piece-link-modal (r/atom nil)
         state-piece (r/atom nil)]
     (letfn [(get-piece [piece-id]
@@ -51,9 +53,12 @@
               [piece-knot-component {:is-open     piece-knot-modal
                                      :state-piece state-piece
                                      :reload      reload}]
-              [link-component {:is-open     piece-link-modal
-                               :state-piece state-piece
-                               :reload      reload}]
+              [piece-date-component {:is-open         piece-basedate-modal
+                                         :state-piece state-piece
+                                         :reload      reload}]
+              [knot-link-component {:is-open piece-link-modal
+                               :state-piece  state-piece
+                               :reload       reload}]
               [:div
                (if @is-login
                  [:div.tags
@@ -63,6 +68,9 @@
                   [:span.tag.is-warning
                    [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
                     "knot"]]
+                  [:span.tag.is-light
+                   [:a.has-text-black {:on-click #(reset! piece-basedate-modal "is-active")}
+                    "date"]]
                   [:span.tag.is-primary
                    [:a.has-text-black {:on-click #(reset! piece-content-new-modal "is-active")}
                     "piece+"]]])

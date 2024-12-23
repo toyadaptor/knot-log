@@ -25,8 +25,8 @@
         [:div.box
          [:div.field
           [:div.control
-           [:textarea.textarea {:placeholder "Textarea"
-                                :value       (-> @state-piece :piece :content)
+           [:label.label "content"]
+           [:textarea.textarea {:value       (-> @state-piece :piece :content)
                                 :on-change   #(swap! state-piece assoc-in [:piece :content] (-> % .-target .-value))}]]]
 
          [:div.field.is-grouped
