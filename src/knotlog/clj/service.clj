@@ -33,7 +33,10 @@
        :prev-date (mapper/select-piece-prev update-time)
        :next-date (mapper/select-piece-next update-time)
        ;:todays    (mapper/select-piece-todays (:base_month_day piece))
-       })))
+       })
+    {:piece {:knot "4o4" :content "no piece"
+             :base_year (now-time-str {:style :y})
+             :base_month_day (now-time-str {:style :md})}}))
 
 (defn handle-piece-create [content]
   (mapper/insert-piece content))

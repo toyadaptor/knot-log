@@ -14,7 +14,7 @@
 
 
 
-(defn pieces-component [{:keys [id is-login]}]
+(defn pieces-component [{:keys [id key is-login]}]
   (let [piece-content-modal (r/atom nil)
         piece-content-new-modal (r/atom nil)
         piece-knot-modal (r/atom nil)
@@ -44,7 +44,7 @@
          (fn []
            (if-let [p @state-piece]
              [:section.section
-              ^{:key id}
+              ^{:key key}
               [piece-content-component {:is-open     piece-content-modal
                                         :state-piece state-piece
                                         :reload      reload}]
@@ -112,14 +112,18 @@
 
                [:div.buttons
                 (if (-> p :prev-date)
-                  [:button.button.is-small {:on-click #(get-piece (-> p :prev-date :id))}
+                  [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (-> p :prev-date :id)}) }
                    "prev"]
+                  #_[:button.button.is-small {:on-click #(get-piece (-> p :prev-date :id))}
+                     "prev"]
                   [:button.button.is-small.is-static
                    "prev"])
 
                 (if (-> p :next-date)
-                  [:button.button.is-small {:on-click #(get-piece (-> p :next-date :id))}
+                  [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (-> p :next-date :id)})}
                    "next"]
+                  #_[:button.button.is-small {:on-click #(get-piece (-> p :next-date :id))}
+                     "next"]
                   [:button.button.is-small.is-static
                    "next"])]
 

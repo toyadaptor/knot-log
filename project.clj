@@ -37,4 +37,6 @@
                 :dev-http     {8888 "resources/public"}
                 :http         {:port 8800}
                 :npm-deps     {:react     "^19.0.0"
-                               :react-dom "^19.0.0"}})
+                               :react-dom "^19.0.0"
+                               :howler "^2.2.4"
+                               }})
