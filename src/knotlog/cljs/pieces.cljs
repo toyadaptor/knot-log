@@ -10,9 +10,8 @@
             [knotlog.cljs.component.piece-content :refer [piece-content-component]]
             [knotlog.cljs.component.piece-content-new :refer [piece-content-component-new]]
             [knotlog.cljs.component.piece-knot :refer [piece-knot-component]]
-            [knotlog.cljs.component.piece-date :refer [piece-date-component]]))
-
-
+            [knotlog.cljs.component.piece-date :refer [piece-date-component]]
+            [knotlog.cljs.component.upload :refer [upload-component]]))
 
 (defn pieces-component [{:keys [id key is-login]}]
   (let [piece-content-modal (r/atom nil)
@@ -53,12 +52,12 @@
               [piece-knot-component {:is-open     piece-knot-modal
                                      :state-piece state-piece
                                      :reload      reload}]
-              [piece-date-component {:is-open         piece-basedate-modal
-                                         :state-piece state-piece
-                                         :reload      reload}]
-              [knot-link-component {:is-open piece-link-modal
-                               :state-piece  state-piece
-                               :reload       reload}]
+              [piece-date-component {:is-open     piece-basedate-modal
+                                     :state-piece state-piece
+                                     :reload      reload}]
+              [knot-link-component {:is-open     piece-link-modal
+                                    :state-piece state-piece
+                                    :reload      reload}]
               [:div
                (if @is-login
                  [:div.tags
@@ -76,7 +75,6 @@
                     "piece+"]]])
 
                [:h1.is-size-3 (or (-> p :piece :knot) "*")]
-
 
                [:div (-> p :piece :content)]
 
@@ -110,9 +108,18 @@
 
                [:br]
 
+               (if @is-login
+                 [:div.content.is-normal
+                  [upload-component {:state-piece state-piece
+                                     :reload      reload}]
+                  [:ul
+                   (for [file (-> p :files)]
+                     ^{:key (:id file)}
+                     [:li [:small [:a.has-text-grey (:uri_path file)]]])]])
+
                [:div.buttons
                 (if (-> p :prev-date)
-                  [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (-> p :prev-date :id)}) }
+                  [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (-> p :prev-date :id)})}
                    "prev"]
                   #_[:button.button.is-small {:on-click #(get-piece (-> p :prev-date :id))}
                      "prev"]

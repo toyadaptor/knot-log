@@ -1,5 +1,6 @@
 (ns knotlog.clj.service
-  (:require [knotlog.cljc.util :refer :all]
+  (:require [knotlog.clj.firebase :as fb]
+            [knotlog.cljc.util :refer :all]
             [knotlog.clj.mapper :as mapper]))
 
 
@@ -32,10 +33,11 @@
        :link-in   (link-list-in piece-id)
        :prev-date (mapper/select-piece-prev update-time)
        :next-date (mapper/select-piece-next update-time)
+       :files     (mapper/select-files piece-id)
        ;:todays    (mapper/select-piece-todays (:base_month_day piece))
        })
-    {:piece {:knot "4o4" :content "no piece"
-             :base_year (now-time-str {:style :y})
+    {:piece {:knot           "4o4" :content "no piece"
+             :base_year      (now-time-str {:style :y})
              :base_month_day (now-time-str {:style :md})}}))
 
 (defn handle-piece-create [content]
@@ -50,6 +52,18 @@
 
 (defn handle-knot-link-delete [link-id]
   (mapper/delete-link link-id))
+
+(defn handle-file-upload [piece-id files]
+  (try
+    (doseq [file (if (map? files) [files] files)]
+      (let [file-name (:filename file)
+            temp-file (.getAbsolutePath (:tempfile file))
+            destination (str "uploads/" piece-id "/" file-name)]
+        (fb/upload-file temp-file destination)
+        (mapper/insert-file piece-id destination)))
+    {:files (map :filename files)}
+    (catch Exception e
+      {:message (.getMessage e)})))
 
 
 

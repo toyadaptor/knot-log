@@ -12,7 +12,10 @@
     [buddy.sign.jwt :as jwt]
     [org.httpkit.server :refer [run-server]]
     [ring.middleware.cors :refer [wrap-cors]]
-    [ring.middleware.cookies :refer [wrap-cookies]]))
+    [ring.middleware.cookies :refer [wrap-cookies]]
+    [ring.middleware.multipart-params :refer [wrap-multipart-params]]
+    ))
+
 
 
 (def app-router
@@ -21,8 +24,11 @@
                             {:status 200 :body {:message "hi"}})}}]
 
      ["/api"
+
+
       ["/piece-latest" {:get {:handler (fn [_]
                                          {:status 200 :body (service/handle-piece-latest)})}}]
+
       ["/pieces/:id" {:get {:path-params {:id int?}
                             :handler     (fn [{{:keys [id]} :path-params}]
                                            {:status 200 :body (service/handle-piece (Long/parseLong id))})}}]
@@ -82,6 +88,12 @@
                                                                                                    :base_month_day base_month_day})
                                                  {:status 200 :body {}})}}]
 
+       ["/pieces/:id/files" {:post {:path-params {:id int?}
+                                    :handler     (fn [request]
+                                                   (let [id (Long/parseLong (-> request :path-params :id))
+                                                         files (get (:multipart-params request) "files")]
+                                                     {:status 200 :body (service/handle-file-upload id files)}))}}]
+
        ["/knot-links" {:post {:body-params {:piece_id int?
                                             :knot     string?}
                               :handler     (fn [{{:keys [piece_id knot]} :body-params}]
@@ -101,6 +113,7 @@
     {:data {:coercion   reitit.coercion.spec/coercion
             :muuntaja   muun/instance
             :middleware [wrap-cookies
+                         wrap-multipart-params
                          auth/wrap-jwt-cookie-auth
                          auth/wrap-jwt-authentication
                          rrm-muuntaja/format-middleware

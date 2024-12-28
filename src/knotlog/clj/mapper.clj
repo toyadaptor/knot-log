@@ -145,23 +145,21 @@
                             :where       [:and [:= :knot_id knot-id]
                                           [:= :piece_id piece-id]]}))))
 
+(defn insert-file [piece-id uri-path]
+  (j/execute! db-config (sql/format
+                          {:insert-into :knot_file
+                           :values      [{:uri_path uri-path
+                                          :piece_id piece-id}]})))
 
+(defn select-files [piece-id]
+  (j/query db-config (sql/format
+                          {:select [:id :create_time :uri_path]
+                           :from   :knot_file
+                           :where  [:= :piece_id piece-id]})))
 
 (comment
-  (insert-piece "2025")
-
-  (update-piece 1 {:base_ymd "20220101"
-                   :base_md  "0101"
-                   :knot     "sj"})
-
-  (select-piece-by-id 2)
-  (select-piece-by-id 3)
-  (delete-piece 1)
-
-  (insert-link 2 3)
-
-  )
-
+  (insert-file 33 "uploads/33/x.png")
+  (select-files 33))
 
 
 (comment
@@ -195,6 +193,19 @@
   (j/execute! db-config
               (sql/format
                 {:raw ["CREATE UNIQUE INDEX ux_knot_link ON knot_link (knot_id, piece_id)"]}))
+
+  (j/execute! db-config
+              (sql/format
+                {:raw ["CREATE TABLE knot_file ("
+                       "id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL, "
+                       "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, "
+                       "uri_path VARCHAR(200) NOT NULL, "
+                       "piece_id BIGINT NOT NULL, "
+                       "PRIMARY KEY (id))"]}))
+
+  (j/execute! db-config
+              (sql/format
+                {:raw ["CREATE INDEX ix_knot_file_piece_id ON knot_file (piece_id)"]}))
 
   )
 
