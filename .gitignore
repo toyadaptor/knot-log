@@ -22,6 +22,5 @@ resources/public/files/
 resources/public/index.html
 .firebaserc
 .firebase/
-firebase.*
 .DS_Store
 .clj-kondo/
