@@ -26,8 +26,11 @@
          [:div.field
           [:div.control
            [:label.label "content"]
-           [:textarea.textarea {:value       (-> @state-piece :piece :content)
-                                :on-change   #(swap! state-piece assoc-in [:piece :content] (-> % .-target .-value))}]]]
+           [:textarea.textarea {:value     (-> @state-piece :piece :content)
+                                :on-change (fn [e]
+                                             (let [is-composing (.-isComposing (.-nativeEvent e))]
+                                               (when-not is-composing
+                                                 (swap! state-piece assoc-in [:piece :content] (-> e .-target .-value)))))}]]]
 
          [:div.field.is-grouped
           [:div.control

@@ -30,7 +30,10 @@
             [:div.control
              [:label.label "content"]
              [:textarea.textarea {:value       @content-new
-                                  :on-change   #(reset! content-new (-> % .-target .-value))}]]]
+                                  :on-change (fn [e]
+                                               (let [is-composing (.-isComposing (.-nativeEvent e))]
+                                                 (when-not is-composing
+                                                   (reset! content-new (-> e .-target .-value)))))}]]]
 
            [:div.field.is-grouped
             [:div.control

@@ -60,7 +60,7 @@
                             (reset! search-text ""))
                         (js/console.log "error")))))
               (search []
-                (cond (= ".nn" @search-text)
+                (cond (= "." @search-text)
                       (do
                         (reset! search-type "password")
                         (reset! search-text ""))

@@ -42,7 +42,8 @@
     (j/query db-config (sql/format
                          {:select   [:id]
                           :from     :knot_piece
-                          :where    [:< :update_time update-time]
+                          :where    [:and [:= :knot nil]
+                                     [:< :update_time update-time]]
                           :order-by [[:update-time :desc]]
                           :limit    1}))))
 
@@ -51,7 +52,8 @@
     (j/query db-config (sql/format
                          {:select   [:id]
                           :from     :knot_piece
-                          :where    [:> :update_time update-time]
+                          :where    [:and [:= :knot nil]
+                                     [:> :update_time update-time]]
                           :order-by [[:update-time :asc]]
                           :limit    1}))))
 
