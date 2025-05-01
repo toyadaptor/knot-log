@@ -66,6 +66,26 @@
                         :group-by [:base_year]
                         :order-by [[:base_year :desc]]})))
 
+(defn select-piece-prev-by-date [month-day]
+  (first
+    (j/query db-config (sql/format
+                         {:select   [:id]
+                          :from     :knot_piece
+                          :where    [:and [:= :knot nil]
+                                     [:< :base_month_day month-day]]
+                          :order-by [[:base_month_day :desc]]
+                          :limit    1}))))
+
+(defn select-piece-next-by-date [month-day]
+  (first
+    (j/query db-config (sql/format
+                         {:select   [:id]
+                          :from     :knot_piece
+                          :where    [:and [:= :knot nil]
+                                     [:> :base_month_day month-day]]
+                          :order-by [[:base_month_day :asc]]
+                          :limit    1}))))
+
 (defn select-piece-id-lower-base [month-day year]
   (first
     (j/query db-config (sql/format
@@ -210,13 +230,3 @@
                 {:raw ["CREATE INDEX ix_knot_file_piece_id ON knot_file (piece_id)"]}))
 
   )
-
-
-
-
-
-
-
-
-
-

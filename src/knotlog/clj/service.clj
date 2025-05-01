@@ -27,14 +27,14 @@
 
 (defn handle-piece [piece-id]
   (if-let [piece (mapper/select-piece-by-id piece-id)]
-    (let [update-time (inst-to-sql-timestamp (:update_time piece))]
+    (let [base-month-day (:base_month_day piece)]
       {:piece     piece
        :link-out  (link-list-out piece-id)
        :link-in   (link-list-in piece-id)
-       :prev-date (mapper/select-piece-prev update-time)
-       :next-date (mapper/select-piece-next update-time)
+       :prev-date (mapper/select-piece-prev-by-date base-month-day)
+       :next-date (mapper/select-piece-next-by-date base-month-day)
        :files     (mapper/select-files piece-id)
-       ;:todays    (mapper/select-piece-todays (:base_month_day piece))
+       ;:todays    (mapper/select-piece-todays base-month-day)
        })
     {:piece {:knot           "4o4" :content "no piece"
              :base_year      (now-time-str {:style :y})
@@ -64,25 +64,3 @@
     {:files (map :filename files)}
     (catch Exception e
       {:message (.getMessage e)})))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
