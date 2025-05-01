@@ -1,4 +1,4 @@
-(ns knotlog.cljc.util
+(ns knotlog.common.util
   (:require [tick.core :as t]
             [tick.locale-en-us])
   #?(:clj (:import [java.sql Timestamp])))

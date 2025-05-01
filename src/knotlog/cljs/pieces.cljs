@@ -5,7 +5,7 @@
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [knotlog.cljs.helper :refer [get-backend-url]]
-            [knotlog.cljc.util :refer [iso-str-to base-date-str-to]]
+            [knotlog.common.util :refer [iso-str-to base-date-str-to]]
             [knotlog.cljs.component.knot-link :refer [knot-link-component]]
             [knotlog.cljs.component.piece-content :refer [piece-content-component]]
             [knotlog.cljs.component.piece-content-new :refer [piece-content-component-new]]
