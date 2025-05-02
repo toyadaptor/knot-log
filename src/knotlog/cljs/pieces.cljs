@@ -81,7 +81,7 @@
                 (for [link (-> p :link-in)]
                   ^{:key (:knot_id link)}
                   [:span.tag.is-black
-                   [:a.has-text-white {:on-click #(get-piece (:knot_id link))}
+                   [:a.has-text-white {:on-click #(rfe/push-state :piece {:id (:knot_id link)})}
                     (:knot link)]
                    (if @is-login
                      [:button.delete
@@ -99,7 +99,7 @@
                 [:dl
                  (for [link (-> p :link-out)]
                    ^{:key (:piece_id link)}
-                   [:dt [:a.has-text-info {:on-click #(get-piece (:piece_id link))}
+                   [:dt [:a.has-text-info {:on-click #(rfe/push-state :piece {:id (:piece_id link)})}
                          (iso-str-to (:update_time link)
                                      {:style :knot-full})]])]]
 
