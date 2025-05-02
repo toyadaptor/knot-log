@@ -21,8 +21,8 @@
       {:piece     piece
        :link-out  (p/find-links-by-knot link-repository id)
        :link-in   (p/find-links-by-piece link-repository id)
-       :prev-date (p/find-piece-prev-by-date piece-repository base-month-day)
-       :next-date (p/find-piece-next-by-date piece-repository base-month-day)
+       :prev-date (p/find-piece-prev piece-repository (:update_time piece))
+       :next-date (p/find-piece-next piece-repository (:update_time piece))
        :files     (p/find-files-by-piece file-repository id)})))
 
 (defn create-piece
@@ -54,6 +54,6 @@
   [piece-repository knot]
   (if-let [knot-piece (p/find-piece-by-knot piece-repository knot)]
     knot-piece
-    (let [{:keys [id]} (create-piece piece-repository ".")]
-      (p/update-piece piece-repository id {:knot knot})
-      (p/find-piece-by-id piece-repository id))))
+    (let [{:keys [id] :as new-piece} (create-piece piece-repository ".")
+          updated-piece (p/update-piece piece-repository id {:knot knot})]
+      (or updated-piece (assoc new-piece :knot knot)))))

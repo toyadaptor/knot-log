@@ -6,9 +6,8 @@
 (defn create-link
   "Create a link between a knot and a piece"
   [piece-repository link-repository piece-id knot]
-  (let [knot-piece (piece-service/get-or-create-knot piece-repository knot)
-        knot-id (:id knot-piece)]
-    (p/save-link link-repository knot-id piece-id)))
+  (let [knot-piece (piece-service/get-or-create-knot piece-repository knot)]
+    (p/save-link link-repository knot piece-id)))
 
 (defn delete-link
   "Delete a link"

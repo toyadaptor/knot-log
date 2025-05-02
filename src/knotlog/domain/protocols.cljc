@@ -10,8 +10,6 @@
   (find-piece-prev [this update-time] "Find the previous piece")
   (find-piece-next [this update-time] "Find the next piece")
   (find-pieces-by-date [this month-day] "Find pieces by date")
-  (find-piece-prev-by-date [this month-day] "Find the previous piece by date")
-  (find-piece-next-by-date [this month-day] "Find the next piece by date")
   (save-piece [this piece] "Save a piece")
   (update-piece [this id data] "Update a piece")
   (delete-piece [this id] "Delete a piece"))

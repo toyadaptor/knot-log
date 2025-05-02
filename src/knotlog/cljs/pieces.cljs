@@ -64,9 +64,6 @@
                   [:span.tag.is-info
                    [:a.has-text-black {:on-click #(reset! piece-content-modal "is-active")}
                     "content"]]
-                  [:span.tag.is-warning
-                   [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
-                    "knot"]]
                   [:span.tag.is-light
                    [:a.has-text-black {:on-click #(reset! piece-basedate-modal "is-active")}
                     "date"]]
@@ -90,9 +87,13 @@
                      [:button.delete
                       {:on-click #(delete-link (:id link))}])])
                 (if @is-login
-                  [:span.tag.is-danger
-                   [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
-                    "knot+"]])]
+                  [:div.tags
+                   [:span.tag.is-warning
+                    [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
+                     "knot"]]
+                   [:span.tag.is-danger
+                    [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
+                     "link+"]]])]
 
                [:div.content.is-normal
                 [:dl

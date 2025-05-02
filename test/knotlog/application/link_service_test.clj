@@ -21,16 +21,6 @@
     (first (sort-by :update-time (filter #(> (:update-time %) update-time) (vals pieces)))))
   (find-pieces-by-date [_ month-day]
     (filter #(= (:base-month-day %) month-day) (vals pieces)))
-  (find-piece-prev-by-date [_ month-day]
-    (let [all-month-days (sort (distinct (map :base-month-day (vals pieces))))
-          idx (.indexOf all-month-days month-day)]
-      (when (and (>= idx 0) (< 0 idx))
-        (first (filter #(= (:base-month-day %) (nth all-month-days (dec idx))) (vals pieces))))))
-  (find-piece-next-by-date [_ month-day]
-    (let [all-month-days (sort (distinct (map :base-month-day (vals pieces))))
-          idx (.indexOf all-month-days month-day)]
-      (when (and (>= idx 0) (< idx (dec (count all-month-days))))
-        (first (filter #(= (:base-month-day %) (nth all-month-days (inc idx))) (vals pieces))))))
   (save-piece [_ piece]
     (assoc piece :id (str (java.util.UUID/randomUUID))))
   (update-piece [this id data]

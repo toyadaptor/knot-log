@@ -67,26 +67,6 @@
                           :group-by [:base_year]
                           :order-by [[:base_year :desc]]})))
 
-  (find-piece-prev-by-date [_ month-day]
-    (first
-      (j/query db-config (sql/format
-                           {:select   [:id]
-                            :from     :knot_piece
-                            :where    [:and [:= :knot nil]
-                                       [:< :base_month_day month-day]]
-                            :order-by [[:base_month_day :desc]]
-                            :limit    1}))))
-
-  (find-piece-next-by-date [_ month-day]
-    (first
-      (j/query db-config (sql/format
-                           {:select   [:id]
-                            :from     :knot_piece
-                            :where    [:and [:= :knot nil]
-                                       [:> :base_month_day month-day]]
-                            :order-by [[:base_month_day :asc]]
-                            :limit    1}))))
-
   (save-piece [_ piece]
     (first
       (j/query db-config (sql/format
