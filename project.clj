@@ -25,9 +25,9 @@
             [lein-cljsbuild "1.1.7"]
             [lein-shadow "0.4.1"]]
   :source-paths ["src", "test"]
-  :main knotlog.clj.main
+  :main knotlog.main
   :profiles {:uberjar {:aot :all}}
-  :repl-options {:init-ns knotlog.clj.main}
+  :repl-options {:init-ns knotlog.main}
   :shadow-cljs {:source-paths ["src"]
                 :builds       {:app {:target          :browser
                                      :output-dir      "resources/public/js"

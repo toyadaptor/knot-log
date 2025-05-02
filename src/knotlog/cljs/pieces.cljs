@@ -5,7 +5,7 @@
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [knotlog.cljs.helper :refer [get-backend-url]]
-            [knotlog.cljc.util :refer [iso-str-to base-date-str-to]]
+            [knotlog.common.util :refer [iso-str-to base-date-str-to]]
             [knotlog.cljs.component.knot-link :refer [knot-link-component]]
             [knotlog.cljs.component.piece-content :refer [piece-content-component]]
             [knotlog.cljs.component.piece-content-new :refer [piece-content-component-new]]
@@ -64,9 +64,6 @@
                   [:span.tag.is-info
                    [:a.has-text-black {:on-click #(reset! piece-content-modal "is-active")}
                     "content"]]
-                  [:span.tag.is-warning
-                   [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
-                    "knot"]]
                   [:span.tag.is-light
                    [:a.has-text-black {:on-click #(reset! piece-basedate-modal "is-active")}
                     "date"]]
@@ -84,21 +81,25 @@
                 (for [link (-> p :link-in)]
                   ^{:key (:knot_id link)}
                   [:span.tag.is-black
-                   [:a.has-text-white {:on-click #(get-piece (:knot_id link))}
+                   [:a.has-text-white {:on-click #(rfe/push-state :piece {:id (:knot_id link)})}
                     (:knot link)]
                    (if @is-login
                      [:button.delete
                       {:on-click #(delete-link (:id link))}])])
                 (if @is-login
-                  [:span.tag.is-danger
-                   [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
-                    "knot+"]])]
+                  [:div.tags
+                   [:span.tag.is-warning
+                    [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
+                     "knot"]]
+                   [:span.tag.is-danger
+                    [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
+                     "link+"]]])]
 
                [:div.content.is-normal
                 [:dl
                  (for [link (-> p :link-out)]
                    ^{:key (:piece_id link)}
-                   [:dt [:a.has-text-info {:on-click #(get-piece (:piece_id link))}
+                   [:dt [:a.has-text-info {:on-click #(rfe/push-state :piece {:id (:piece_id link)})}
                          (iso-str-to (:update_time link)
                                      {:style :knot-full})]])]]
 
