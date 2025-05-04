@@ -100,8 +100,10 @@
                  (for [link (-> p :link-out)]
                    ^{:key (:piece_id link)}
                    [:dt [:a.has-text-info {:on-click #(rfe/push-state :piece {:id (:piece_id link)})}
-                         (iso-str-to (:update_time link)
-                                     {:style :knot-full})]])]]
+                         (if (empty? (:knot link))
+                           (iso-str-to (:update_time link)
+                                       {:style :knot-full})
+                           (:knot link))]])]]
 
                [:p [:small
                     (base-date-str-to (-> p :piece :base_year) (-> p :piece :base_month_day))

@@ -17,6 +17,7 @@
   (find-links-by-knot [_ knot-id]
     (j/query db-config (sql/format
                          {:select   [:link.piece_id
+                                     :piece.knot
                                      :piece.update_time]
                           :from     [[:knot_link :link]]
                           :join     [[:knot_piece :piece] [:= :link.piece_id :piece.id]]
