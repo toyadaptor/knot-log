@@ -1,6 +1,5 @@
 (ns knotlog.interface.repositories.piece-repository
   (:require [knotlog.domain.protocols :as p]
-            [knotlog.domain.piece :as piece]
             [clojure.java.jdbc :as j]
             [honey.sql :as sql]
             [clojure.set :as set]))

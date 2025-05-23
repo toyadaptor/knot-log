@@ -16,25 +16,17 @@
   (find-recent-pieces [_ offset limit]
     (take limit (drop offset (reverse (sort-by :update-time (vals pieces))))))
   (find-piece-prev [_ update-time]
-    (last (sort-by :update-time (filter #(< (:update-time %) update-time) (vals pieces)))))
+    (when update-time
+      (last (sort-by :update-time (filter #(and (:update-time %) (neg? (.compareTo (:update-time %) update-time))) (vals pieces))))))
   (find-piece-next [_ update-time]
-    (first (sort-by :update-time (filter #(> (:update-time %) update-time) (vals pieces)))))
+    (when update-time
+      (first (sort-by :update-time (filter #(and (:update-time %) (pos? (.compareTo (:update-time %) update-time))) (vals pieces))))))
   (find-pieces-by-date [_ month-day]
     (filter #(= (:base-month-day %) month-day) (vals pieces)))
-  (find-piece-prev-by-date [_ month-day]
-    (let [all-month-days (sort (distinct (map :base-month-day (vals pieces))))
-          idx (.indexOf all-month-days month-day)]
-      (when (and (>= idx 0) (< 0 idx))
-        (first (filter #(= (:base-month-day %) (nth all-month-days (dec idx))) (vals pieces))))))
-  (find-piece-next-by-date [_ month-day]
-    (let [all-month-days (sort (distinct (map :base-month-day (vals pieces))))
-          idx (.indexOf all-month-days month-day)]
-      (when (and (>= idx 0) (< idx (dec (count all-month-days))))
-        (first (filter #(= (:base-month-day %) (nth all-month-days (inc idx))) (vals pieces))))))
   (save-piece [_ piece]
     (assoc piece :id (str (java.util.UUID/randomUUID))))
   (update-piece [this id data]
-    (when-let [piece (find-piece-by-id this id)]
+    (when-let [piece (p/find-piece-by-id this id)]
       (merge piece data)))
   (delete-piece [_ id]
     nil))
@@ -126,10 +118,15 @@
       (is (= "Updated content" (:content updated))))))
 
 (deftest test-update-piece-knot
-  (testing "Update piece knot"
+  (testing "Update piece knot with non-empty value"
     (let [repo (->MockPieceRepository test-pieces)
           updated (sut/update-piece-knot repo "1" "updated-knot")]
-      (is (= "updated-knot" (:knot updated))))))
+      (is (= "updated-knot" (:knot updated)))))
+
+  (testing "Update piece knot with empty value"
+    (let [repo (->MockPieceRepository test-pieces)
+          updated (sut/update-piece-knot repo "1" "")]
+      (is (nil? (:knot updated))))))
 
 (deftest test-update-piece-date
   (testing "Update piece date"
@@ -143,7 +140,7 @@
     (let [repo (->MockPieceRepository test-pieces)
           result (sut/get-or-create-knot repo "test-knot-1")]
       (is (= test-piece1 result))))
-  
+
   (testing "Create new knot"
     (let [repo (->MockPieceRepository test-pieces)
           result (sut/get-or-create-knot repo "new-knot")]

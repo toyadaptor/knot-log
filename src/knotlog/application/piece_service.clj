@@ -1,7 +1,8 @@
 (ns knotlog.application.piece-service
   (:require [knotlog.domain.piece :as piece]
             [knotlog.domain.protocols :as p]
-            [knotlog.common.util :refer [now-time-str]]))
+            [knotlog.common.util :refer [now-time-str]]
+            [knotlog.infrastructure.config :as config]))
 
 (defn get-piece-by-id
   "Get a piece by ID"
@@ -17,13 +18,12 @@
   "Get a piece with its links"
   [piece-repository link-repository file-repository id]
   (when-let [piece (p/find-piece-by-id piece-repository id)]
-    (let [base-month-day (:base-month-day piece)]
-      {:piece     piece
-       :link-out  (p/find-links-by-knot link-repository id)
-       :link-in   (p/find-links-by-piece link-repository id)
-       :prev-date (p/find-piece-prev piece-repository (:update_time piece))
-       :next-date (p/find-piece-next piece-repository (:update_time piece))
-       :files     (p/find-files-by-piece file-repository id)})))
+    {:piece     piece
+     :link-out  (p/find-links-by-knot link-repository id)
+     :link-in   (p/find-links-by-piece link-repository id)
+     :prev-date (p/find-piece-prev piece-repository (:update_time piece))
+     :next-date (p/find-piece-next piece-repository (:update_time piece))
+     :files     (p/find-files-by-piece file-repository id)}))
 
 (defn create-piece
   "Create a new piece"
@@ -41,7 +41,7 @@
 (defn update-piece-knot
   "Update a piece's knot"
   [piece-repository id knot]
-  (p/update-piece piece-repository id {:knot knot}))
+  (p/update-piece piece-repository id {:knot (when-not (empty? knot) knot)}))
 
 (defn update-piece-date
   "Update a piece's date"
