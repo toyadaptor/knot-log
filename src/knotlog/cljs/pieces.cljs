@@ -34,113 +34,126 @@
                   (js/console.log "error"))))
             (reload []
               (get-piece id))]
-      (r/create-class
-        {:component-did-mount
-         (fn [_]
-           (get-piece id))
+      (let [handle-popstate (fn [_] 
+                              (let [path-parts (-> js/window.location.pathname (clojure.string/split #"/"))
+                                    piece-id (last path-parts)]
+                                (when (and (>= (count path-parts) 3) 
+                                           (= "pieces" (nth path-parts 1)))
+                                  (get-piece piece-id))))]
+        (r/create-class
+          {:component-did-mount
+           (fn [_]
+             (get-piece id)
+             ;; Add popstate event listener for browser back/forward buttons
+             (js/window.addEventListener "popstate" handle-popstate))
+           
+           :component-will-unmount
+           (fn [_]
+             ;; Remove popstate event listener when component unmounts
+             (js/window.removeEventListener "popstate" handle-popstate))
 
-         :reagent-render
-         (fn []
-           (if-let [p @state-piece]
-             [:section.section
-              ^{:key key}
-              [piece-content-component {:is-open     piece-content-modal
-                                        :state-piece state-piece
-                                        :reload      reload}]
-              [piece-content-component-new {:is-open   piece-content-new-modal
-                                            :get-piece get-piece}]
-              [piece-knot-component {:is-open     piece-knot-modal
-                                     :state-piece state-piece
-                                     :reload      reload}]
-              [piece-date-component {:is-open     piece-basedate-modal
-                                     :state-piece state-piece
-                                     :reload      reload}]
-              [knot-link-component {:is-open     piece-link-modal
-                                    :state-piece state-piece
-                                    :reload      reload}]
-              [:div
-               (if @is-login
+           :reagent-render
+           (fn []
+             (if-let [p @state-piece]
+               [:section.section
+                ^{:key key}
+                [piece-content-component {:is-open     piece-content-modal
+                                          :state-piece state-piece
+                                          :reload      reload}]
+                [piece-content-component-new {:is-open   piece-content-new-modal
+                                              :get-piece get-piece}]
+                [piece-knot-component {:is-open     piece-knot-modal
+                                       :state-piece state-piece
+                                       :reload      reload}]
+                [piece-date-component {:is-open     piece-basedate-modal
+                                       :state-piece state-piece
+                                       :reload      reload}]
+                [knot-link-component {:is-open     piece-link-modal
+                                      :state-piece state-piece
+                                      :reload      reload}]
+                [:div
+                 (if @is-login
+                   [:div.tags
+                    [:span.tag.is-info
+                     [:a.has-text-black {:on-click #(reset! piece-content-modal "is-active")}
+                      "content"]]
+                    [:span.tag.is-light
+                     [:a.has-text-black {:on-click #(reset! piece-basedate-modal "is-active")}
+                      "date"]]
+                    [:span.tag.is-primary
+                     [:a.has-text-black {:on-click #(reset! piece-content-new-modal "is-active")}
+                      "piece+"]]])
+
+                 [:h1.is-size-3 (or (-> p :piece :knot) "*")]
+
+                 [:div (-> p :piece :content)]
+
+                 [:br]
+
                  [:div.tags
-                  [:span.tag.is-info
-                   [:a.has-text-black {:on-click #(reset! piece-content-modal "is-active")}
-                    "content"]]
-                  [:span.tag.is-light
-                   [:a.has-text-black {:on-click #(reset! piece-basedate-modal "is-active")}
-                    "date"]]
-                  [:span.tag.is-primary
-                   [:a.has-text-black {:on-click #(reset! piece-content-new-modal "is-active")}
-                    "piece+"]]])
+                  (for [link (-> p :link-in)]
+                    ^{:key (:knot_id link)}
+                    [:span.tag.is-black
+                     [:a.has-text-white {:on-click #(rfe/push-state :piece {:id (:knot_id link)})}
+                      (:knot link)]
+                     (if @is-login
+                       [:button.delete
+                        {:on-click #(delete-link (:id link))}])])
+                  (if @is-login
+                    [:div.tags
+                     [:span.tag.is-warning
+                      [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
+                       "knot"]]
+                     [:span.tag.is-danger
+                      [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
+                       "link+"]]])]
 
-               [:h1.is-size-3 (or (-> p :piece :knot) "*")]
-
-               [:div (-> p :piece :content)]
-
-               [:br]
-
-               [:div.tags
-                (for [link (-> p :link-in)]
-                  ^{:key (:knot_id link)}
-                  [:span.tag.is-black
-                   [:a.has-text-white {:on-click #(rfe/push-state :piece {:id (:knot_id link)})}
-                    (:knot link)]
-                   (if @is-login
-                     [:button.delete
-                      {:on-click #(delete-link (:id link))}])])
-                (if @is-login
-                  [:div.tags
-                   [:span.tag.is-warning
-                    [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
-                     "knot"]]
-                   [:span.tag.is-danger
-                    [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
-                     "link+"]]])]
-
-               [:div.content.is-normal
-                [:dl
-                 (for [link (-> p :link-out)]
-                   ^{:key (:piece_id link)}
-                   [:dt [:a.has-text-info {:on-click #(rfe/push-state :piece {:id (:piece_id link)})}
-                         (if (empty? (:knot link))
-                           (iso-str-to (:update_time link)
-                                       {:style :knot-full})
-                           (:knot link))]])]]
-
-               [:p [:small
-                    (base-date-str-to (-> p :piece :base_year) (-> p :piece :base_month_day))
-                    #_(iso-str-to (-> p :piece :update_time))]]
-
-               [:br]
-
-               (if @is-login
                  [:div.content.is-normal
-                  [upload-component {:state-piece state-piece
-                                     :reload      reload}]
-                  [:ul
-                   (for [file (-> p :files)]
-                     ^{:key (:id file)}
-                     [:li [:small [:a.has-text-grey (:uri_path file)]]])]])
+                  [:dl
+                   (for [link (-> p :link-out)]
+                     ^{:key (:piece_id link)}
+                     [:dt [:a.has-text-info {:on-click #(rfe/push-state :piece {:id (:piece_id link)})}
+                           (if (empty? (:knot link))
+                             (iso-str-to (:update_time link)
+                                         {:style :knot-full})
+                             (:knot link))]])]]
 
-               [:div.buttons
-                (if (-> p :prev-date)
-                  [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (-> p :prev-date :id)})}
-                   "prev"]
-                  #_[:button.button.is-small {:on-click #(get-piece (-> p :prev-date :id))}
+                 [:p [:small
+                      (base-date-str-to (-> p :piece :base_year) (-> p :piece :base_month_day))
+                      #_(iso-str-to (-> p :piece :update_time))]]
+
+                 [:br]
+
+                 (if @is-login
+                   [:div.content.is-normal
+                    [upload-component {:state-piece state-piece
+                                       :reload      reload}]
+                    [:ul
+                     (for [file (-> p :files)]
+                       ^{:key (:id file)}
+                       [:li [:small [:a.has-text-grey (:uri_path file)]]])]])
+
+                 [:div.buttons
+                  (if (-> p :prev-date)
+                    [:button.button.is-small {:on-click (fn []
+                                                          (get-piece (-> p :prev-date :id))
+                                                          (js/history.pushState nil nil (str "/pieces/" (-> p :prev-date :id))))}
                      "prev"]
-                  [:button.button.is-small.is-static
-                   "prev"])
+                    [:button.button.is-small.is-static
+                     "prev"])
 
-                (if (-> p :next-date)
-                  [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (-> p :next-date :id)})}
-                   "next"]
-                  #_[:button.button.is-small {:on-click #(get-piece (-> p :next-date :id))}
+                  (if (-> p :next-date)
+                    [:button.button.is-small {:on-click (fn []
+                                                          (get-piece (-> p :next-date :id))
+                                                          (js/history.pushState nil nil (str "/pieces/" (-> p :next-date :id))))}
                      "next"]
-                  [:button.button.is-small.is-static
-                   "next"])]
+                    [:button.button.is-small.is-static
+                     "next"])]
 
-               #_[:div.buttons
-                  (for [today (-> p :todays)]
-                    ^{:key (:id today)}
-                    [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (:id today)})}
-                     (:base_year today)])]
-               ]]
-             ))}))))
+                 #_[:div.buttons
+                    (for [today (-> p :todays)]
+                      ^{:key (:id today)}
+                      [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (:id today)})}
+                       (:base_year today)])]
+                 ]]
+               ))})))))
