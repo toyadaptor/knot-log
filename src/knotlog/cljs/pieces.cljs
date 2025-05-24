@@ -11,7 +11,8 @@
             [knotlog.cljs.component.piece-content-new :refer [piece-content-component-new]]
             [knotlog.cljs.component.piece-knot :refer [piece-knot-component]]
             [knotlog.cljs.component.piece-date :refer [piece-date-component]]
-            [knotlog.cljs.component.upload :refer [upload-component]]))
+            [knotlog.cljs.component.upload :refer [upload-component]]
+            [knotlog.cljs.convert :refer [process-content]]))
 
 (defn pieces-component [{:keys [id key is-login]}]
   (let [piece-content-modal (r/atom nil)
@@ -24,7 +25,7 @@
               (go
                 (let [{:keys [status body]} (<! (http/get (get-backend-url (str "/api/pieces/" piece-id))))]
                   (if (= 200 status)
-                    (reset! state-piece body)
+                    (reset! state-piece (process-content body))
                     (js/console.log "error")
                     ))))
             (delete-link [link-id]
@@ -46,7 +47,7 @@
              (get-piece id)
              ;; Add popstate event listener for browser back/forward buttons
              (js/window.addEventListener "popstate" handle-popstate))
-           
+
            :component-will-unmount
            (fn [_]
              ;; Remove popstate event listener when component unmounts
@@ -86,7 +87,9 @@
 
                  [:h1.is-size-3 (or (-> p :piece :knot) "*")]
 
-                 [:div (-> p :piece :content)]
+                 [:div {:dangerouslySetInnerHTML
+                        {:__html (process-content (-> p :piece :content))}}]
+                 ;[:div (-> p :piece :content)]
 
                  [:br]
 
