@@ -121,14 +121,15 @@
                  [:br]
 
                  [:div.tags
-                  (for [link (-> p :link-in)]
-                    ^{:key (:knot_id link)}
-                    [:span.tag.is-black
-                     [:a.has-text-white {:on-click #(rfe/push-state :piece {:id (:knot_id link)})}
-                      (:knot link)]
-                     (if @is-login
-                       [:button.delete
-                        {:on-click #(delete-link (:id link))}])])
+                  (doall
+                    (for [link (-> p :link-in)]
+                      ^{:key (:knot_id link)}
+                      [:span.tag.is-black
+                       [:a.has-text-white {:on-click #(rfe/push-state :piece {:id (:knot_id link)})}
+                        (:knot link)]
+                       (if @is-login
+                         [:button.delete
+                          {:on-click #(delete-link (:id link))}])]))
                   (if @is-login
                     [:div.tags
                      [:span.tag.is-warning
