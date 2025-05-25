@@ -163,7 +163,7 @@
                        ^{:key (:id file)}
                        [:li [:small [:a.has-text-grey (:uri_path file)]]])]])
 
-                 [:div.buttons
+                 [:div.buttons.is-centered
                   (if (-> p :prev-date)
                     [:button.button.is-small {:on-click (fn []
                                                           (get-piece (-> p :prev-date :id))
