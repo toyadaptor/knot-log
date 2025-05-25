@@ -20,7 +20,9 @@
         piece-knot-modal (r/atom nil)
         piece-basedate-modal (r/atom nil)
         piece-link-modal (r/atom nil)
-        state-piece (r/atom nil)]
+        state-piece (r/atom nil)
+        touch-start (r/atom nil)
+        touch-end (r/atom nil)]
     (letfn [(get-piece [piece-id]
               (go
                 (let [{:keys [status body]} (<! (http/get (get-backend-url (str "/api/pieces/" piece-id))))]
@@ -34,7 +36,24 @@
                   nil
                   (js/console.log "error"))))
             (reload []
-              (get-piece id))]
+              (get-piece id))
+            (handle-swipe []
+              (when (and @touch-start @touch-end)
+                (let [swipe-distance (- (.-clientX @touch-start) (.-clientX @touch-end))
+                      min-swipe-distance 50] ; Minimum distance to consider it a swipe
+                  (when (> (js/Math.abs swipe-distance) min-swipe-distance)
+                    (if (> swipe-distance 0)
+                      ; Swipe left -> go to next
+                      (when (-> @state-piece :next-date)
+                        (get-piece (-> @state-piece :next-date :id))
+                        (js/history.pushState nil nil (str "/pieces/" (-> @state-piece :next-date :id))))
+                      ; Swipe right -> go to prev
+                      (when (-> @state-piece :prev-date)
+                        (get-piece (-> @state-piece :prev-date :id))
+                        (js/history.pushState nil nil (str "/pieces/" (-> @state-piece :prev-date :id)))))
+                    ; Reset touch states after handling swipe
+                    (reset! touch-start nil)
+                    (reset! touch-end nil)))))]
       (let [handle-popstate (fn [_] 
                               (let [path-parts (-> js/window.location.pathname (clojure.string/split #"/"))
                                     piece-id (last path-parts)]
@@ -57,6 +76,14 @@
            (fn []
              (if-let [p @state-piece]
                [:section.section
+                {:on-touch-start (fn [e]
+                                   (reset! touch-start (-> e .-touches (aget 0))))
+                 :on-touch-end (fn [e]
+                                 (reset! touch-end (-> e .-changedTouches (aget 0)))
+                                 (handle-swipe))
+                 :on-touch-cancel (fn [_]
+                                    (reset! touch-start nil)
+                                    (reset! touch-end nil))}
                 ^{:key key}
                 [piece-content-component {:is-open     piece-content-modal
                                           :state-piece state-piece
