@@ -56,3 +56,9 @@
     {:files (map :filename files)}
     (catch Exception e
       {:message (.getMessage e)})))
+
+(defn handle-knots-search
+  "Handle request to search for knots by prefix"
+  [piece-repository prefix]
+  (let [knots (piece-service/search-knots-by-prefix piece-repository prefix)]
+    {:knots (map :knot knots)}))

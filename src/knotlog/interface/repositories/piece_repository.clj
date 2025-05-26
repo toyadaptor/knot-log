@@ -13,6 +13,16 @@
                                  :from   :knot_piece
                                  :where  [:= :id id]}))))
 
+  (find-knots-by-prefix [_ prefix]
+    (j/query db-config (sql/format
+                         {:select :knot
+                          :from   :knot_piece
+                          :where  [:and
+                                   [:not= :knot nil]
+                                   [:like :knot (str prefix "%")]]
+                          :order-by [[:knot :asc]]
+                          :limit    10})))
+
   (find-piece-by-knot [_ knot]
     (first
       (j/query db-config (sql/format
@@ -90,3 +100,9 @@
 
 (defn create-piece-repository [db-config]
   (->PieceRepositoryImpl db-config))
+
+
+(comment
+  (def repo (create-piece-repository knotlog.infrastructure.config/db-config))
+  (p/find-knots-by-prefix repo "ni")
+  )

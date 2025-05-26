@@ -150,8 +150,7 @@
                              (:knot link))]])]]
 
                  [:p [:small
-                      (base-date-str-to (-> p :piece :base_year) (-> p :piece :base_month_day))
-                      #_(iso-str-to (-> p :piece :update_time))]]
+                      (iso-str-to (-> p :piece :update_time) {:style :knot-full})]]
 
                  [:br]
 

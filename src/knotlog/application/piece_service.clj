@@ -57,3 +57,8 @@
     (let [{:keys [id] :as new-piece} (create-piece piece-repository ".")
           updated-piece (p/update-piece piece-repository id {:knot knot})]
       (or updated-piece (assoc new-piece :knot knot)))))
+
+(defn search-knots-by-prefix
+  "Search for knots that start with the given prefix"
+  [piece-repository prefix]
+  (p/find-knots-by-prefix piece-repository prefix))

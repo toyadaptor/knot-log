@@ -17,6 +17,8 @@
 (def is-login (r/atom false))
 (def search-type (r/atom "text"))
 (def search-text (r/atom ""))
+(def knot-suggestions (r/atom []))
+(def show-suggestions (r/atom false))
 
 
 (defn not-found []
@@ -50,20 +52,42 @@
                       (if (= 200 status)
                         (do (reset! is-login true)
                             (reset! search-type "text")
-                            (reset! search-text ""))
+                            (reset! search-text "")
+                            (reset! show-suggestions false))
                         (js/console.log "error")))))
               (logout []
                 (go (let [{:keys [status]} (<! (http/post (get-backend-url "/api/private/logout")))]
                       (if (= 200 status)
                         (do (reset! is-login false)
                             (reset! search-type "text")
-                            (reset! search-text ""))
+                            (reset! search-text "")
+                            (reset! show-suggestions false))
                         (js/console.log "error")))))
+              (fetch-knot-suggestions [prefix]
+                (when (and @is-login 
+                           (not= "." (first prefix))
+                           (not= "password" @search-type)
+                           (not (empty? prefix)))
+                  (go (let [response (<! (http/get (get-backend-url "/api/private/knots/search")
+                                                   {:query-params {:prefix prefix}
+                                                    :with-credentials true}))
+                            status (:status response)]
+                        (if (= 200 status)
+                          (do
+                            (reset! knot-suggestions (get-in response [:body :knots]))
+                            (reset! show-suggestions (not (empty? @knot-suggestions))))
+                          (do
+                            (reset! knot-suggestions [])
+                            (reset! show-suggestions false)))))))
+              (select-suggestion [suggestion]
+                (reset! search-text suggestion)
+                (reset! show-suggestions false))
               (search []
                 (cond (= "." @search-text)
                       (do
                         (reset! search-type "password")
-                        (reset! search-text ""))
+                        (reset! search-text "")
+                        (reset! show-suggestions false))
 
                       (= ".bi" @search-text)
                       (logout)
@@ -88,13 +112,32 @@
 
           [:form {:on-submit (fn [e]
                                (.preventDefault e))}
-           [:input.input {:type        @search-type
-                          :value       @search-text
-                          :on-change   #(reset! search-text (-> % .-target .-value))
-                          :on-key-down (fn [e]
-                                         (when (= "Enter" (.-key e)) ;; 엔터 키 감지
-                                           (search)))
-                          }]]
+           [:div.field
+            [:div.control
+             [:input.input {:type        @search-type
+                            :value       @search-text
+                            :on-change   (fn [e]
+                                           (let [value (-> e .-target .-value)]
+                                             (reset! search-text value)
+                                             (fetch-knot-suggestions value)))
+                            :on-key-down (fn [e]
+                                           (when (= "Enter" (.-key e)) ;; 엔터 키 감지
+                                             (reset! show-suggestions false)
+                                             (search)))
+                            :on-blur     (fn [_] 
+                                           (js/setTimeout 
+                                             (fn [] 
+                                               (reset! show-suggestions false)) 
+                                             200))
+                            }]]
+            (when (and @show-suggestions (seq @knot-suggestions))
+              [:div.dropdown.is-active {:style {:width "100%"}}
+               [:div.dropdown-menu {:style {:width "100%"}}
+                [:div.dropdown-content
+                 (for [suggestion @knot-suggestions]
+                   ^{:key suggestion}
+                   [:a.dropdown-item {:on-click #(select-suggestion suggestion)}
+                    suggestion])]]])]]
           [:footer [:small.has-text-grey "powered by knot-log"]
            ]]]))
     not-found))
@@ -119,4 +162,3 @@
 
 (defn ^:export main []
   (mount-root))
-

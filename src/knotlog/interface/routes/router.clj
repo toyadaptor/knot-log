@@ -53,11 +53,11 @@
 
       ["/pieces/:id" {:get {:path-params {:id int?}
                             :handler     (fn [{{:keys [id]} :path-params}]
-                                           {:status 200 :body (controller/handle-piece 
-                                                               config/piece-repository 
-                                                               config/link-repository 
-                                                               config/file-repository 
-                                                               (Long/parseLong id))})}}]
+                                           {:status 200 :body (controller/handle-piece
+                                                                config/piece-repository
+                                                                config/link-repository
+                                                                config/file-repository
+                                                                (Long/parseLong id))})}}]
 
       ["/login" {:post {:body-params {:password string?}
                         :handler     (fn [{{:keys [password]} :body-params}]
@@ -110,9 +110,9 @@
                                                 :base_month_day string?}
                                   :handler     (fn [{{:keys [id]}                       :path-params
                                                      {:keys [base_year base_month_day]} :body-params}]
-                                                 (controller/handle-piece-update config/piece-repository (Long/parseLong id) 
-                                                                                {:base_year base_year
-                                                                                 :base_month_day base_month_day})
+                                                 (controller/handle-piece-update config/piece-repository (Long/parseLong id)
+                                                                                 {:base_year      base_year
+                                                                                  :base_month_day base_month_day})
                                                  {:status 200 :body {}})}}]
 
        ["/pieces/:id/files" {:post {:path-params {:id int?}
@@ -120,20 +120,20 @@
                                                    (let [id (Long/parseLong (-> request :path-params :id))
                                                          files (get (:multipart-params request) "files")
                                                          file-storage (config/init-firebase-storage)]
-                                                     {:status 200 :body (controller/handle-file-upload 
-                                                                         config/file-repository 
-                                                                         file-storage 
-                                                                         id 
-                                                                         files)}))}}]
+                                                     {:status 200 :body (controller/handle-file-upload
+                                                                          config/file-repository
+                                                                          file-storage
+                                                                          id
+                                                                          files)}))}}]
 
        ["/knot-links" {:post {:body-params {:piece_id int?
                                             :knot     string?}
                               :handler     (fn [{{:keys [piece_id knot]} :body-params}]
-                                             (controller/handle-knot-link-create 
-                                              config/piece-repository 
-                                              config/link-repository 
-                                              piece_id 
-                                              knot)
+                                             (controller/handle-knot-link-create
+                                               config/piece-repository
+                                               config/link-repository
+                                               piece_id
+                                               knot)
                                              {:status 200 :body {}})}}]
        ["/knot-links/:id" {:delete {:path-params {:id int?}
                                     :handler     (fn [{{:keys [id]} :path-params}]
@@ -143,6 +143,10 @@
                                      {:status  200
                                       :cookies {"token" {:value "" :max-age 0 :path "/"}
                                                 "login" {:value "" :max-age 0 :path "/"}}})}}]
+
+       ["/knots/search" {:get {:parameters {:query {:prefix string?}}
+                               :handler      (fn [{{{:keys [prefix]} :query} :parameters}]
+                                               {:status 200 :body (controller/handle-knots-search config/piece-repository prefix)})}}]
        ]]]
 
 
