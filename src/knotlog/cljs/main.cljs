@@ -101,7 +101,7 @@
          [:section.section
           [:header [:h1.is-size-5
                     [:a.has-text-grey {:on-click #(rfe/push-state :index)}
-                     ":: knot"]]]
+                     "@KNOT"]]]
 
           [sound-component]
 

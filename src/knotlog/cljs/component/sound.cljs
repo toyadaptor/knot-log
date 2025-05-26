@@ -31,9 +31,9 @@
       (fn []
         [:div.is-pulled-right
          [:div.buttons.has-text-grey
-          [:i.fas.fa-music]
-          [:a.has-text-grey {:on-click #(rfe/push-state :piece {:id 28})}
-           "james - 보수동쿨러"]
+          [:small
+           [:a.has-text-grey {:on-click #(rfe/push-state :piece {:id 28})}
+            "\"james - 보수동쿨러\""]]
 
           [:a.has-text-grey {:on-click (if @is-playing pause-audio play-audio)}
            [:i.fas {:class (if @is-playing "fa-circle-pause" "fa-circle-play")}]]]]))))
