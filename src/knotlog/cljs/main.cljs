@@ -64,7 +64,8 @@
                             (reset! show-suggestions false))
                         (js/console.log "error")))))
               (fetch-knot-suggestions [prefix]
-                (when (and @is-login 
+                (cond
+                  (and @is-login
                            (not= "." (first prefix))
                            (not= "password" @search-type)
                            (not (empty? prefix)))
@@ -78,7 +79,10 @@
                             (reset! show-suggestions (not (empty? @knot-suggestions))))
                           (do
                             (reset! knot-suggestions [])
-                            (reset! show-suggestions false)))))))
+                            (reset! show-suggestions false)))))
+
+                  (empty? prefix)
+                  (reset! show-suggestions false)))
               (select-suggestion [suggestion]
                 (reset! search-text suggestion)
                 (reset! show-suggestions false))
