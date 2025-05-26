@@ -51,102 +51,103 @@
       ["/piece-latest" {:get {:handler (fn [_]
                                          {:status 200 :body (controller/handle-piece-latest config/piece-repository)})}}]
 
-      ["/pieces/:id" {:get {:path-params {:id int?}
-                            :handler     (fn [{{:keys [id]} :path-params}]
-                                           {:status 200 :body (controller/handle-piece
-                                                                config/piece-repository
-                                                                config/link-repository
-                                                                config/file-repository
-                                                                (Long/parseLong id))})}}]
+      ["/pieces/:id" {:get {:parameters {:path {:id int?}}
+                            :handler    (fn [{{{:keys [id]} :path} :parameters}]
+                                          {:status 200 :body (controller/handle-piece
+                                                               config/piece-repository
+                                                               config/link-repository
+                                                               config/file-repository
+                                                               id)})}}]
 
-      ["/login" {:post {:body-params {:password string?}
-                        :handler     (fn [{{:keys [password]} :body-params}]
-                                       (let [valid? (some-> config/auth-data
-                                                            (get :admin)
-                                                            (= password))]
-                                         (if valid?
-                                           (let [claims {:user :admin
-                                                         :exp  (time/plus (time/now) (time/seconds 3600))}
-                                                 token (jwt/sign claims config/auth-secret {:alg :hs512})]
-                                             {:status  200 :body {:token token}
-                                              :cookies {"token" {:value     token
-                                                                 :domain    config/auth-domain
-                                                                 :http-only true
-                                                                 :secure    true
-                                                                 :path      "/"
-                                                                 :same-site :lax}
-                                                        "login" {:value     "1"
-                                                                 :domain    config/auth-domain
-                                                                 :http-only false
-                                                                 :secure    false
-                                                                 :path      "/"
-                                                                 :same-site :lax}}})
+      ["/login" {:post {:parameters {:body {:password string?}}
+                        :handler    (fn [{{{:keys [password]} :body} :parameters}]
+                                      (let [valid? (some-> config/auth-data
+                                                           (get :admin)
+                                                           (= password))]
+                                        (if valid?
+                                          (let [claims {:user :admin
+                                                        :exp  (time/plus (time/now) (time/seconds 3600))}
+                                                token (jwt/sign claims config/auth-secret {:alg :hs512})]
+                                            {:status  200 :body {:token token}
+                                             :cookies {"token" {:value     token
+                                                                :domain    config/auth-domain
+                                                                :http-only true
+                                                                :secure    true
+                                                                :path      "/"
+                                                                :same-site :lax}
+                                                       "login" {:value     "1"
+                                                                :domain    config/auth-domain
+                                                                :http-only false
+                                                                :secure    false
+                                                                :path      "/"
+                                                                :same-site :lax}}})
 
-                                           {:status 400 :body {:error-text "nop!"}})))}}]
+                                          {:status 400 :body {:error-text "nop!"}})))}}]
 
       ["/private"
        {:middleware [[wrap-role-authorization [:admin]]]}
 
-       ["/pieces" {:post {:body-params {:content string?}
-                          :handler     (fn [{{:keys [content]} :body-params}]
-                                         {:status 200 :body (controller/handle-piece-create config/piece-repository content)})}}]
+       ["/pieces" {:post {:parameters {:body {:content string?}}
+                          :handler    (fn [{{{:keys [content]} :body} :parameters}]
+                                        {:status 200 :body (controller/handle-piece-create config/piece-repository content)})}}]
 
-       ["/pieces/:id/content" {:put {:path-params {:id int?}
-                                     :body-params {:content string?}
-                                     :handler     (fn [{{:keys [id]}      :path-params
-                                                        {:keys [content]} :body-params}]
-                                                    (controller/handle-piece-update config/piece-repository (Long/parseLong id) {:content content})
-                                                    {:status 200 :body {}})}}]
-
-       ["/pieces/:id/knot" {:put {:path-params {:id int?}
-                                  :body-params {:knot string?}
-                                  :handler     (fn [{{:keys [id]}   :path-params
-                                                     {:keys [knot]} :body-params}]
-                                                 (controller/handle-piece-update config/piece-repository (Long/parseLong id) {:knot knot})
-                                                 {:status 200 :body {}})}}]
-
-       ["/pieces/:id/date" {:put {:path-params {:id int?}
-                                  :body-params {:base_year      string?
-                                                :base_month_day string?}
-                                  :handler     (fn [{{:keys [id]}                       :path-params
-                                                     {:keys [base_year base_month_day]} :body-params}]
-                                                 (controller/handle-piece-update config/piece-repository (Long/parseLong id)
-                                                                                 {:base_year      base_year
-                                                                                  :base_month_day base_month_day})
-                                                 {:status 200 :body {}})}}]
-
-       ["/pieces/:id/files" {:post {:path-params {:id int?}
-                                    :handler     (fn [request]
-                                                   (let [id (Long/parseLong (-> request :path-params :id))
-                                                         files (get (:multipart-params request) "files")
-                                                         file-storage (config/init-firebase-storage)]
-                                                     {:status 200 :body (controller/handle-file-upload
-                                                                          config/file-repository
-                                                                          file-storage
-                                                                          id
-                                                                          files)}))}}]
-
-       ["/knot-links" {:post {:body-params {:piece_id int?
-                                            :knot     string?}
-                              :handler     (fn [{{:keys [piece_id knot]} :body-params}]
-                                             (controller/handle-knot-link-create
-                                               config/piece-repository
-                                               config/link-repository
-                                               piece_id
-                                               knot)
-                                             {:status 200 :body {}})}}]
-       ["/knot-links/:id" {:delete {:path-params {:id int?}
-                                    :handler     (fn [{{:keys [id]} :path-params}]
-                                                   (controller/handle-knot-link-delete config/link-repository (Long/parseLong id))
+       ["/pieces/:id/content" {:put {:parameters {:path {:id int?}
+                                                  :body {:content string?}}
+                                     :handler    (fn [{{{:keys [id]}      :path
+                                                        {:keys [content]} :body} :parameters}]
+                                                   (controller/handle-piece-update config/piece-repository id {:content content})
                                                    {:status 200 :body {}})}}]
+
+       ["/pieces/:id/knot" {:put {:parameters {:path {:id int?}
+                                               :body {:knot string?}}
+                                  :handler    (fn [{{{:keys [id]}   :path
+                                                     {:keys [knot]} :body} :parameters}]
+                                                (controller/handle-piece-update config/piece-repository id {:knot knot})
+                                                {:status 200 :body {}})}}]
+
+       ["/pieces/:id/date" {:put {:parameters {:path {:id int?}
+                                               :body {:base_year      string?
+                                                      :base_month_day string?}}
+                                  :handler    (fn [{{{:keys [id]}                       :path
+                                                     {:keys [base_year base_month_day]} :body} :parameters}]
+                                                (controller/handle-piece-update config/piece-repository id
+                                                                                {:base_year      base_year
+                                                                                 :base_month_day base_month_day})
+                                                {:status 200 :body {}})}}]
+
+       ["/pieces/:id/files" {:post {:parameters {:path      {:id int?}
+                                                 :multipart {:files any?}}
+                                    :handler    (fn [{:keys [parameters]}]
+                                                  (let [id (-> parameters :path :id)
+                                                        files (get-in parameters [:multipart "files"])
+                                                        file-storage (config/init-firebase-storage)]
+                                                    {:status 200 :body (controller/handle-file-upload
+                                                                         config/file-repository
+                                                                         file-storage
+                                                                         id
+                                                                         files)}))}}]
+
+       ["/knot-links" {:post {:parameters {:body {:piece_id int?
+                                                  :knot     string?}}
+                              :handler    (fn [{{{:keys [piece_id knot]} :body} :parameters}]
+                                            (controller/handle-knot-link-create
+                                              config/piece-repository
+                                              config/link-repository
+                                              piece_id
+                                              knot)
+                                            {:status 200 :body {}})}}]
+       ["/knot-links/:id" {:delete {:parameters {:path {:id int?}}
+                                    :handler    (fn [{{{:keys [id]} :path} :parameters}]
+                                                  (controller/handle-knot-link-delete config/link-repository id)
+                                                  {:status 200 :body {}})}}]
        ["/logout" {:post {:handler (fn [_]
                                      {:status  200
                                       :cookies {"token" {:value "" :max-age 0 :path "/"}
                                                 "login" {:value "" :max-age 0 :path "/"}}})}}]
 
        ["/knots/search" {:get {:parameters {:query {:prefix string?}}
-                               :handler      (fn [{{{:keys [prefix]} :query} :parameters}]
-                                               {:status 200 :body (controller/handle-knots-search config/piece-repository prefix)})}}]
+                               :handler    (fn [{{{:keys [prefix]} :query} :parameters}]
+                                             {:status 200 :body (controller/handle-knots-search config/piece-repository prefix)})}}]
        ]]]
 
 
