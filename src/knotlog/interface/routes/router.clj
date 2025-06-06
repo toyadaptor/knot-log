@@ -1,6 +1,8 @@
 (ns knotlog.interface.routes.router
   (:require
-    [knotlog.interface.controllers.piece-controller :as controller]
+    [knotlog.application.piece-service :as piece-service]
+    [knotlog.application.link-service :as link-service]
+    [knotlog.application.file-service :as file-service]
     [knotlog.infrastructure.config :as config]
     [muuntaja.core :as muun]
     [reitit.ring :as ring]
@@ -49,11 +51,11 @@
 
      ["/api"
       ["/piece-latest" {:get {:handler (fn [_]
-                                         {:status 200 :body (controller/handle-piece-latest config/piece-repository)})}}]
+                                         {:status 200 :body (piece-service/handle-piece-latest config/piece-repository)})}}]
 
       ["/pieces/:id" {:get {:parameters {:path {:id int?}}
                             :handler    (fn [{{{:keys [id]} :path} :parameters}]
-                                          {:status 200 :body (controller/handle-piece
+                                          {:status 200 :body (piece-service/handle-piece
                                                                config/piece-repository
                                                                config/link-repository
                                                                config/file-repository
@@ -89,20 +91,20 @@
 
        ["/pieces" {:post {:parameters {:body {:content string?}}
                           :handler    (fn [{{{:keys [content]} :body} :parameters}]
-                                        {:status 200 :body (controller/handle-piece-create config/piece-repository content)})}}]
+                                        {:status 200 :body (piece-service/create-piece config/piece-repository content)})}}]
 
        ["/pieces/:id/content" {:put {:parameters {:path {:id int?}
                                                   :body {:content string?}}
                                      :handler    (fn [{{{:keys [id]}      :path
                                                         {:keys [content]} :body} :parameters}]
-                                                   (controller/handle-piece-update config/piece-repository id {:content content})
+                                                   (piece-service/handle-piece-update config/piece-repository id {:content content})
                                                    {:status 200 :body {}})}}]
 
        ["/pieces/:id/knot" {:put {:parameters {:path {:id int?}
                                                :body {:knot string?}}
                                   :handler    (fn [{{{:keys [id]}   :path
                                                      {:keys [knot]} :body} :parameters}]
-                                                (controller/handle-piece-update config/piece-repository id {:knot knot})
+                                                (piece-service/handle-piece-update config/piece-repository id {:knot knot})
                                                 {:status 200 :body {}})}}]
 
        ["/pieces/:id/date" {:put {:parameters {:path {:id int?}
@@ -110,7 +112,7 @@
                                                       :base_month_day string?}}
                                   :handler    (fn [{{{:keys [id]}                       :path
                                                      {:keys [base_year base_month_day]} :body} :parameters}]
-                                                (controller/handle-piece-update config/piece-repository id
+                                                (piece-service/handle-piece-update config/piece-repository id
                                                                                 {:base_year      base_year
                                                                                  :base_month_day base_month_day})
                                                 {:status 200 :body {}})}}]
@@ -121,7 +123,7 @@
                                                   (let [id (-> parameters :path :id)
                                                         files (get-in parameters [:multipart "files"])
                                                         file-storage (config/init-firebase-storage)]
-                                                    {:status 200 :body (controller/handle-file-upload
+                                                    {:status 200 :body (file-service/handle-file-upload
                                                                          config/file-repository
                                                                          file-storage
                                                                          id
@@ -130,7 +132,7 @@
        ["/knot-links" {:post {:parameters {:body {:piece_id int?
                                                   :knot     string?}}
                               :handler    (fn [{{{:keys [piece_id knot]} :body} :parameters}]
-                                            (controller/handle-knot-link-create
+                                            (link-service/create-link
                                               config/piece-repository
                                               config/link-repository
                                               piece_id
@@ -138,7 +140,7 @@
                                             {:status 200 :body {}})}}]
        ["/knot-links/:id" {:delete {:parameters {:path {:id int?}}
                                     :handler    (fn [{{{:keys [id]} :path} :parameters}]
-                                                  (controller/handle-knot-link-delete config/link-repository id)
+                                                  (link-service/delete-link config/link-repository id)
                                                   {:status 200 :body {}})}}]
        ["/logout" {:post {:handler (fn [_]
                                      {:status  200
@@ -147,7 +149,7 @@
 
        ["/knots/search" {:get {:parameters {:query {:prefix string?}}
                                :handler    (fn [{{{:keys [prefix]} :query} :parameters}]
-                                             {:status 200 :body (controller/handle-knots-search config/piece-repository prefix)})}}]
+                                             {:status 200 :body (piece-service/handle-knots-search config/piece-repository prefix)})}}]
        ]]]
 
 

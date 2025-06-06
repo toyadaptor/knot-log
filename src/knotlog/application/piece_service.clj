@@ -1,8 +1,7 @@
 (ns knotlog.application.piece-service
   (:require [knotlog.domain.piece :as piece]
             [knotlog.domain.protocols :as p]
-            [knotlog.common.util :refer [now-time-str]]
-            [knotlog.infrastructure.config :as config]))
+            [knotlog.common.util :refer [now-time-str]]))
 
 (defn get-piece-by-id
   "Get a piece by ID"
@@ -62,3 +61,34 @@
   "Search for knots that start with the given prefix"
   [piece-repository prefix]
   (p/find-knots-by-prefix piece-repository prefix))
+
+(defn handle-piece-latest
+  "Handle request for the latest piece"
+  [piece-repository]
+  (if-let [piece (get-latest-piece piece-repository)]
+    {:id (:id piece)}
+    (create-piece piece-repository "hi")))
+
+(defn handle-piece
+  "Handle request for a piece by ID"
+  [piece-repository link-repository file-repository piece-id]
+  (if-let [result (get-piece-with-links piece-repository link-repository file-repository piece-id)]
+    result
+    {:piece {:knot           "4o4" :content "no piece"
+             :base_year      (now-time-str {:style :y})
+             :base_month_day (now-time-str {:style :md})}}))
+
+(defn handle-piece-update
+  "Handle request to update a piece"
+  [piece-repository id data]
+  (cond
+    (:content data) (update-piece-content piece-repository id (:content data))
+    (:knot data) (update-piece-knot piece-repository id (:knot data))
+    (and (:base_year data) (:base_month_day data)) 
+    (update-piece-date piece-repository id (:base_year data) (:base_month_day data))))
+
+(defn handle-knots-search
+  "Handle request to search for knots by prefix"
+  [piece-repository prefix]
+  (let [knots (search-knots-by-prefix piece-repository prefix)]
+    {:knots (map :knot knots)}))

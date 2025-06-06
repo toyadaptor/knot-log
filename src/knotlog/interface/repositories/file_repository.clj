@@ -1,6 +1,5 @@
 (ns knotlog.interface.repositories.file-repository
   (:require [knotlog.domain.protocols :as p]
-            [knotlog.domain.file :as file]
             [clojure.java.jdbc :as j]
             [honey.sql :as sql]))
 

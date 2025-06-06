@@ -1,6 +1,5 @@
 (ns knotlog.interface.repositories.link-repository
   (:require [knotlog.domain.protocols :as p]
-            [knotlog.domain.link :as link]
             [clojure.java.jdbc :as j]
             [honey.sql :as sql]))
 

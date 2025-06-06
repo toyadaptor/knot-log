@@ -1,6 +1,5 @@
 (ns knotlog.application.link-service
-  (:require [knotlog.domain.link :as link]
-            [knotlog.domain.protocols :as p]
+  (:require [knotlog.domain.protocols :as p]
             [knotlog.application.piece-service :as piece-service]))
 
 (defn create-link
