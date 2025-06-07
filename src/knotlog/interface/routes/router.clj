@@ -51,11 +51,11 @@
 
      ["/api"
       ["/piece-latest" {:get {:handler (fn [_]
-                                         {:status 200 :body (piece-service/handle-piece-latest config/piece-repository)})}}]
+                                         {:status 200 :body (piece-service/handle-piece-latest! config/piece-repository)})}}]
 
       ["/pieces/:id" {:get {:parameters {:path {:id int?}}
                             :handler    (fn [{{{:keys [id]} :path} :parameters}]
-                                          {:status 200 :body (piece-service/handle-piece
+                                          {:status 200 :body (piece-service/handle-piece!
                                                                config/piece-repository
                                                                config/link-repository
                                                                config/file-repository
@@ -97,14 +97,14 @@
                                                   :body {:content string?}}
                                      :handler    (fn [{{{:keys [id]}      :path
                                                         {:keys [content]} :body} :parameters}]
-                                                   (piece-service/handle-piece-update config/piece-repository id {:content content})
+                                                   (piece-service/handle-piece-update! config/piece-repository id {:content content})
                                                    {:status 200 :body {}})}}]
 
        ["/pieces/:id/knot" {:put {:parameters {:path {:id int?}
                                                :body {:knot string?}}
                                   :handler    (fn [{{{:keys [id]}   :path
                                                      {:keys [knot]} :body} :parameters}]
-                                                (piece-service/handle-piece-update config/piece-repository id {:knot knot})
+                                                (piece-service/handle-piece-update! config/piece-repository id {:knot knot})
                                                 {:status 200 :body {}})}}]
 
        ["/pieces/:id/date" {:put {:parameters {:path {:id int?}
@@ -112,8 +112,8 @@
                                                       :base_month_day string?}}
                                   :handler    (fn [{{{:keys [id]}                       :path
                                                      {:keys [base_year base_month_day]} :body} :parameters}]
-                                                (piece-service/handle-piece-update config/piece-repository id
-                                                                                {:base_year      base_year
+                                                (piece-service/handle-piece-update! config/piece-repository id
+                                                                                    {:base_year      base_year
                                                                                  :base_month_day base_month_day})
                                                 {:status 200 :body {}})}}]
 
@@ -123,7 +123,7 @@
                                                   (let [id (-> parameters :path :id)
                                                         files (get-in parameters [:multipart "files"])
                                                         file-storage (config/init-firebase-storage)]
-                                                    {:status 200 :body (file-service/handle-file-upload
+                                                    {:status 200 :body (file-service/handle-file-upload!
                                                                          config/file-repository
                                                                          file-storage
                                                                          id
@@ -132,7 +132,7 @@
        ["/knot-links" {:post {:parameters {:body {:piece_id int?
                                                   :knot     string?}}
                               :handler    (fn [{{{:keys [piece_id knot]} :body} :parameters}]
-                                            (link-service/create-link
+                                            (link-service/create-link!
                                               config/piece-repository
                                               config/link-repository
                                               piece_id
@@ -140,7 +140,7 @@
                                             {:status 200 :body {}})}}]
        ["/knot-links/:id" {:delete {:parameters {:path {:id int?}}
                                     :handler    (fn [{{{:keys [id]} :path} :parameters}]
-                                                  (link-service/delete-link config/link-repository id)
+                                                  (link-service/delete-link! config/link-repository id)
                                                   {:status 200 :body {}})}}]
        ["/logout" {:post {:handler (fn [_]
                                      {:status  200
@@ -149,7 +149,7 @@
 
        ["/knots/search" {:get {:parameters {:query {:prefix string?}}
                                :handler    (fn [{{{:keys [prefix]} :query} :parameters}]
-                                             {:status 200 :body (piece-service/handle-knots-search config/piece-repository prefix)})}}]
+                                             {:status 200 :body (piece-service/handle-knots-search! config/piece-repository prefix)})}}]
        ]]]
 
 

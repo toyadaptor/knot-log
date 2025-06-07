@@ -74,21 +74,21 @@
 (deftest test-get-links-by-piece
   (testing "Get links by piece"
     (let [link-repo (->MockLinkRepository test-links)]
-      (is (empty? (sut/get-links-by-piece link-repo "1")))
-      (is (= 1 (count (sut/get-links-by-piece link-repo "2"))))
-      (is (empty? (sut/get-links-by-piece link-repo "3"))))))
+      (is (empty? (sut/get-links-by-piece! link-repo "1")))
+      (is (= 1 (count (sut/get-links-by-piece! link-repo "2"))))
+      (is (empty? (sut/get-links-by-piece! link-repo "3"))))))
 
 (deftest test-get-links-by-knot
   (testing "Get links by knot"
     (let [link-repo (->MockLinkRepository test-links)]
-      (is (= 1 (count (sut/get-links-by-knot link-repo "test-knot-1"))))
-      (is (empty? (sut/get-links-by-knot link-repo "test-knot-2")))
-      (is (empty? (sut/get-links-by-knot link-repo "non-existent-knot"))))))
+      (is (= 1 (count (sut/get-links-by-knot! link-repo "test-knot-1"))))
+      (is (empty? (sut/get-links-by-knot! link-repo "test-knot-2")))
+      (is (empty? (sut/get-links-by-knot! link-repo "non-existent-knot"))))))
 
 (deftest test-delete-link
   (testing "Delete link"
     (let [link-repo (->MockLinkRepository test-links)]
-      (is (nil? (sut/delete-link link-repo "1"))))))
+      (is (nil? (sut/delete-link! link-repo "1"))))))
 
 (deftest test-create-link-existing-knot
   (testing "Create link with existing knot"
@@ -96,7 +96,7 @@
           link-repo (->MockLinkRepository {})
           piece-id "2"
           knot "test-knot-1"
-          result (sut/create-link piece-repo link-repo piece-id knot)]
+          result (sut/create-link! piece-repo link-repo piece-id knot)]
       (is (= "test-knot-1" (:knot-id result)))
       (is (= "2" (:piece-id result)))
       (is (string? (:id result))))))
@@ -111,7 +111,7 @@
             link-repo (->MockLinkRepository {})
             piece-id "2"
             knot "new-knot"
-            result (sut/create-link piece-repo link-repo piece-id knot)]
+            result (sut/create-link! piece-repo link-repo piece-id knot)]
         (is (string? (:id result)))
         (is (= "new-knot" (:knot-id result)))
         (is (= "2" (:piece-id result)))))))

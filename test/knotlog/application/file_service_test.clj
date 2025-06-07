@@ -32,9 +32,9 @@
 (deftest test-get-files-by-piece
   (testing "Get files by piece"
     (let [repo (->MockFileRepository test-files)]
-      (is (= 1 (count (sut/get-files-by-piece repo "1"))))
-      (is (= 1 (count (sut/get-files-by-piece repo "2"))))
-      (is (empty? (sut/get-files-by-piece repo "3"))))))
+      (is (= 1 (count (sut/get-files-by-piece! repo "1"))))
+      (is (= 1 (count (sut/get-files-by-piece! repo "2"))))
+      (is (empty? (sut/get-files-by-piece! repo "3"))))))
 
 (deftest test-upload-file
   (testing "Upload file"
