@@ -115,12 +115,19 @@
                                                                                  :base_month_day base_month_day})
                                                 {:status 200 :body {}})}}]
 
+       ;["/pieces/:id/files" {:post {:parameters {:path      {:id int?}
+       ;                                          :multipart-params {:files any?}}
+       ;                             :handler    (fn [request]
+       ;                                           (do
+       ;                                             (println request)
+       ;                                             {:status 200 :body {:message "hi"}}))}}]
+
        ["/pieces/:id/files" {:post {:parameters {:path      {:id int?}
-                                                 :multipart {:files any?}}
-                                    :handler    (fn [{:keys [parameters]}]
+                                                 :multipart-params {:files any?}}
+                                    :handler    (fn [{:keys [parameters multipart-params]}]
                                                   (let [id (-> parameters :path :id)
-                                                        files (get-in parameters [:multipart "files"])
-                                                        file-storage (config/init-firebase-storage)]
+                                                        files (get multipart-params "files")
+                                                        file-storage (config/firebase-storage)]
                                                     {:status 200 :body (file-service/handle-file-upload!
                                                                          config/file-repository
                                                                          file-storage

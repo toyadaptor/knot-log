@@ -24,8 +24,12 @@
 (def file-repository (file-repo/create-file-repository db-config))
 
 ;; Storage instances
-(defn init-firebase-storage []
-  (firebase/create-firebase-storage firebase-config))
+(def ^:private firebase-storage-instance (atom nil))
+
+(defn firebase-storage []
+  (if @firebase-storage-instance
+    @firebase-storage-instance
+    (reset! firebase-storage-instance (firebase/create-firebase-storage firebase-config))))
 
 ;; Authentication configuration
 (def auth-secret (env :auth-secret))
