@@ -1,5 +1,5 @@
 (ns knotlog.infrastructure.firebase-storage
-  (:require [knotlog.domain.protocols :as p])
+  (:require [knotlog.interface.repositories.file-storage-interface :as p])
   (:import [com.google.auth.oauth2 GoogleCredentials]
            [com.google.firebase FirebaseApp FirebaseOptions]
            [com.google.firebase.cloud StorageClient]

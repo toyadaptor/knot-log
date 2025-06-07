@@ -1,8 +1,8 @@
 (ns knotlog.infrastructure.config
   (:require [environ.core :refer [env]]
-            [knotlog.interface.repositories.piece-repository :as piece-repo]
-            [knotlog.interface.repositories.link-repository :as link-repo]
-            [knotlog.interface.repositories.file-repository :as file-repo]
+            [knotlog.infrastructure.repositories.piece-repository :as piece-repo]
+            [knotlog.infrastructure.repositories.link-repository :as link-repo]
+            [knotlog.infrastructure.repositories.file-repository :as file-repo]
             [knotlog.infrastructure.firebase-storage :as firebase]))
 
 ;; Database configuration

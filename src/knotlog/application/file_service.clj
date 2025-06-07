@@ -1,25 +1,13 @@
 (ns knotlog.application.file-service
-  (:require [knotlog.domain.protocols :as p]))
+  (:require [knotlog.interface.repositories.file-storage-interface :as file-storage-i]
+            [knotlog.interface.repositories.file-interface :as file-i]
+            [knotlog.domain.file :as file]))
 
 (defn upload-file
   "Upload a file and save its metadata"
   [file-repository file-storage piece-id local-path destination-path]
-  (p/upload-file file-storage local-path destination-path)
-  (p/save-file file-repository piece-id destination-path))
-
-(defn format-upload-result
-  "Format the result of a file upload operation (pure function)"
-  [files]
-  {:files (map :filename files)})
-
-(defn format-error-result
-  "Format an error result (pure function)"
-  [error-message]
-  {:message error-message})
-(defn get-files-by-piece!
-  "Get files for a piece"
-  [file-repository piece-id]
-  (p/find-files-by-piece file-repository piece-id))
+  (file-storage-i/upload-file file-storage local-path destination-path)
+  (file-i/save-file file-repository piece-id destination-path))
 
 (defn handle-file-upload!
   "Handle request to upload a file"
@@ -30,6 +18,6 @@
             temp-file (.getAbsolutePath (:tempfile file))
             destination (str "uploads/" piece-id "/" file-name)]
         (upload-file file-repository file-storage piece-id temp-file destination)))
-    (format-upload-result files)
+    (file/format-upload-result files)
     (catch Exception e
-      (format-error-result (.getMessage e)))))
+      (file/format-error-result (.getMessage e)))))

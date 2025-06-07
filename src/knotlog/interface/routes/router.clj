@@ -20,7 +20,6 @@
     [ring.middleware.cookies :refer [wrap-cookies]]
     [ring.middleware.multipart-params :refer [wrap-multipart-params]]))
 
-;; Authentication middleware
 (defn wrap-jwt-cookie-auth [handler]
   (fn [request]
     (let [token (get-in request [:cookies "token" :value])]
@@ -43,7 +42,6 @@
         (handler request)
         {:status 403 :body {:message "Forbidden"}}))))
 
-;; Router definition
 (def app-router
   (ring/router
     [["/" {:get {:handler (fn [_]
@@ -91,7 +89,7 @@
 
        ["/pieces" {:post {:parameters {:body {:content string?}}
                           :handler    (fn [{{{:keys [content]} :body} :parameters}]
-                                        {:status 200 :body (piece-service/create-piece config/piece-repository content)})}}]
+                                        {:status 200 :body (piece-service/create-piece! config/piece-repository content)})}}]
 
        ["/pieces/:id/content" {:put {:parameters {:path {:id int?}
                                                   :body {:content string?}}

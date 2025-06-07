@@ -1,5 +1,5 @@
-(ns knotlog.interface.repositories.piece-repository
-  (:require [knotlog.domain.protocols :as p]
+(ns knotlog.infrastructure.repositories.piece-repository
+  (:require [knotlog.interface.repositories.piece-interface :as p]
             [clojure.java.jdbc :as j]
             [honey.sql :as sql]
             [clojure.set :as set]))
@@ -100,9 +100,3 @@
 
 (defn create-piece-repository [db-config]
   (->PieceRepositoryImpl db-config))
-
-
-(comment
-  (def repo (create-piece-repository knotlog.infrastructure.config/db-config))
-  (p/find-knots-by-prefix repo "ni")
-  )
