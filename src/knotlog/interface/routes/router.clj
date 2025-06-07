@@ -112,17 +112,10 @@
                                                      {:keys [base_year base_month_day]} :body} :parameters}]
                                                 (piece-service/handle-piece-update! config/piece-repository id
                                                                                     {:base_year      base_year
-                                                                                 :base_month_day base_month_day})
+                                                                                     :base_month_day base_month_day})
                                                 {:status 200 :body {}})}}]
 
-       ;["/pieces/:id/files" {:post {:parameters {:path      {:id int?}
-       ;                                          :multipart-params {:files any?}}
-       ;                             :handler    (fn [request]
-       ;                                           (do
-       ;                                             (println request)
-       ;                                             {:status 200 :body {:message "hi"}}))}}]
-
-       ["/pieces/:id/files" {:post {:parameters {:path      {:id int?}
+       ["/pieces/:id/files" {:post {:parameters {:path             {:id int?}
                                                  :multipart-params {:files any?}}
                                     :handler    (fn [{:keys [parameters multipart-params]}]
                                                   (let [id (-> parameters :path :id)
@@ -133,6 +126,19 @@
                                                                          file-storage
                                                                          id
                                                                          files)}))}}]
+
+       ["/pieces/:id/files/{file-id}" {:post {:parameters {:path             {:id      int?
+                                                                              :file-id int?}
+                                                           :multipart-params {:files any?}}
+                                              :handler    (fn [{:keys [parameters multipart-params]}]
+                                                            (let [id (-> parameters :path :id)
+                                                                  file-id (-> parameters :path :file-id)
+                                                                  file-storage (config/firebase-storage)]
+                                                              {:status 200 :body (file-service/handle-file-delete!
+                                                                                   config/file-repository
+                                                                                   file-storage
+                                                                                   id
+                                                                                   file-id)}))}}]
 
        ["/knot-links" {:post {:parameters {:body {:piece_id int?
                                                   :knot     string?}}

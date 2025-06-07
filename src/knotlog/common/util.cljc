@@ -38,10 +38,15 @@
 (defn inst-to-sql-timestamp
   "Converts a Clojure #inst to java.sql.Timestamp. Only available in Clojure."
   [inst]
-  #?(:clj (Timestamp. (.getTime inst))
+  #?(:clj  (Timestamp. (.getTime inst))
      :cljs (throw (js/Error. "inst-to-sql-timestamp is not available in ClojureScript"))))
 
 (defn base-date-str-to [base-year base-month-day]
   (let [month (subs base-month-day 0 2)
         day (subs base-month-day 2 4)]
     (str base-year "년 " month "월 " day "일")))
+
+(defn storage-url [upload-path]
+  #?(:cljs
+     (str "https://firebasestorage.googleapis.com/v0/b/knotlog-ae3d9.firebasestorage.app/o/"
+          (js/encodeURIComponent upload-path) "?alt=media")))

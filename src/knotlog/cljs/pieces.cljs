@@ -5,7 +5,7 @@
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [knotlog.cljs.helper :refer [get-backend-url]]
-            [knotlog.common.util :refer [iso-str-to base-date-str-to]]
+            [knotlog.common.util :refer [iso-str-to base-date-str-to storage-url]]
             [knotlog.cljs.component.knot-link :refer [knot-link-component]]
             [knotlog.cljs.component.piece-content :refer [piece-content-component]]
             [knotlog.cljs.component.piece-content-new :refer [piece-content-component-new]]
@@ -54,10 +54,10 @@
                     ; Reset touch states after handling swipe
                     (reset! touch-start nil)
                     (reset! touch-end nil)))))]
-      (let [handle-popstate (fn [_] 
+      (let [handle-popstate (fn [_]
                               (let [path-parts (-> js/window.location.pathname (clojure.string/split #"/"))
                                     piece-id (last path-parts)]
-                                (when (and (>= (count path-parts) 3) 
+                                (when (and (>= (count path-parts) 3)
                                            (= "pieces" (nth path-parts 1)))
                                   (get-piece piece-id))))]
         (r/create-class
@@ -116,7 +116,6 @@
 
                  [:div {:dangerouslySetInnerHTML
                         {:__html (process-content (-> p :piece :content))}}]
-                 ;[:div (-> p :piece :content)]
 
                  [:br]
 
@@ -134,7 +133,8 @@
                     [:div.tags
                      [:span.tag.is-warning
                       [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
-                       "knot"]]
+                       "knot"]
+                      ]
                      [:span.tag.is-danger
                       [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
                        "link+"]]])]
@@ -157,11 +157,7 @@
                  (if @is-login
                    [:div.content.is-normal
                     [upload-component {:state-piece state-piece
-                                       :reload      reload}]
-                    [:ul
-                     (for [file (-> p :files)]
-                       ^{:key (:id file)}
-                       [:li [:small [:a.has-text-grey (:uri_path file)]]])]])
+                                       :reload      reload}]])
 
                  [:div.buttons.is-centered
                   (if (-> p :prev-date)

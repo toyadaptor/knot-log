@@ -1,5 +1,6 @@
 (ns knotlog.cljs.convert
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [knotlog.common.util :refer [storage-url]]))
 
 (def processors
   [{:pattern #"@img\s+([^@]+)@"
@@ -7,7 +8,7 @@
                (str/replace content
                             #"@img\s+([^@]+)@"
                             (fn [[_ img-path]]
-                              (str "<img src=\"" (str/trim img-path) "\" alt=\"\" />"))))}
+                              (str "<img src=\"" (storage-url img-path) "\" alt=\"\" />"))))}
 
    {:pattern #"@link\s+([^|]+)\|([^@]+)@"
     :process (fn [content]
