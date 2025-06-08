@@ -14,6 +14,6 @@
 
 (defn -main
   [& _]
+  (println "Starting knotlog...")
   (init-logging!)
-  (println "Starting knotlog with Clean Architecture...")
   (router/start))

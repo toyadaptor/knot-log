@@ -127,18 +127,17 @@
                                                                          id
                                                                          files)}))}}]
 
-       ["/pieces/:id/files/{file-id}" {:post {:parameters {:path             {:id      int?
-                                                                              :file-id int?}
-                                                           :multipart-params {:files any?}}
-                                              :handler    (fn [{:keys [parameters multipart-params]}]
-                                                            (let [id (-> parameters :path :id)
-                                                                  file-id (-> parameters :path :file-id)
-                                                                  file-storage (config/firebase-storage)]
-                                                              {:status 200 :body (file-service/handle-file-delete!
-                                                                                   config/file-repository
-                                                                                   file-storage
-                                                                                   id
-                                                                                   file-id)}))}}]
+       ["/pieces/:id/files/{file-id}" {:delete {:parameters {:path {:id      int?
+                                                                    :file-id int?}}
+                                                :handler    (fn [{:keys [parameters]}]
+                                                              (let [id (-> parameters :path :id)
+                                                                    file-id (-> parameters :path :file-id)
+                                                                    file-storage (config/firebase-storage)]
+                                                                {:status 200 :body (file-service/handle-file-delete!
+                                                                                     config/file-repository
+                                                                                     file-storage
+                                                                                     id
+                                                                                     file-id)}))}}]
 
        ["/knot-links" {:post {:parameters {:body {:piece_id int?
                                                   :knot     string?}}

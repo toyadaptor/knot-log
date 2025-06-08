@@ -1,5 +1,6 @@
 (ns knotlog.infrastructure.firebase-storage
-  (:require [knotlog.interface.repositories.file-storage-interface :as p])
+  (:require [knotlog.interface.repositories.file-storage-interface :as p]
+            [clojure.string :as str])
   (:import [com.google.auth.oauth2 GoogleCredentials]
            [com.google.firebase FirebaseApp FirebaseOptions]
            [com.google.firebase.cloud StorageClient]
@@ -18,7 +19,18 @@
         (let [blob (.create bucket destination-path file-bytes (into-array Bucket$BlobTargetOption []))]
           (println (str "File uploaded successfully to: " (.getName blob))))
         (catch Exception e
-          (println (str "Failed to upload file: " (.getMessage e))))))))
+          (println (str "Failed to upload file: " (.getMessage e)))))))
+          
+  (remove-file [_ remote-path]
+    (let [bucket (.bucket (StorageClient/getInstance))]
+      (try
+        (let [path-components (str/split remote-path #"/")
+              blob (.get bucket (into-array String path-components))]
+          (when blob
+            (.delete blob)
+            (println (str "File deleted successfully from: " remote-path))))
+        (catch Exception e
+          (println (str "Failed to delete file: " (.getMessage e))))))))
 
 (defn initialize-firebase [firebase-config]
   (when (empty? (FirebaseApp/getApps))
