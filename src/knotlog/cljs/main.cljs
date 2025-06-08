@@ -10,6 +10,7 @@
             [knotlog.cljs.index :refer [index-component]]
             [knotlog.cljs.helper :refer [get-backend-url]]
             [knotlog.cljs.component.sound :refer [sound-component]]
+            [knotlog.cljs.component.piece-new :refer [piece-new-component]]
             ["react-dom/client" :refer [createRoot]]))
 
 (defonce root (r/atom nil))
@@ -19,6 +20,7 @@
 (def search-text (r/atom ""))
 (def knot-suggestions (r/atom []))
 (def show-suggestions (r/atom false))
+(def piece-new-modal (r/atom nil))
 
 
 (defn not-found []
@@ -105,9 +107,16 @@
          [:section.section
           [:header [:h1.is-size-5
                     [:a.has-text-grey {:on-click #(rfe/push-state :index)}
-                     "@KNOT"]]]
+                     "@KNOT"]
+                    [:a.has-text-black {:on-click #(reset! piece-new-modal "is-active")}
+                     [:span.icon
+                      [:i.fas.fa-plus]]]]]
 
           [sound-component]
+
+          [piece-new-component {:is-open piece-new-modal
+                               :get-piece (fn [piece-id]
+                                           (rfe/push-state :piece {:id piece-id}))}]
 
           [view-page {:view view
                       :key  id}]

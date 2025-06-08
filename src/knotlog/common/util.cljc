@@ -30,10 +30,11 @@
 
 
 (defn iso-str-to [iso-string & {:keys [style] :or {style :korean-full}}]
-  (time-format
-    (parse-iso-date iso-string)
-    {:style style}))
-
+  (if (empty? iso-string)
+    "o1o1o1o1o1o1o1"
+    (time-format
+      (parse-iso-date iso-string)
+      {:style style})))
 
 (defn inst-to-sql-timestamp
   "Converts a Clojure #inst to java.sql.Timestamp. Only available in Clojure."
@@ -42,9 +43,8 @@
      :cljs (throw (js/Error. "inst-to-sql-timestamp is not available in ClojureScript"))))
 
 (defn base-date-str-to [base-year base-month-day]
-  (let [month (subs base-month-day 0 2)
-        day (subs base-month-day 2 4)]
-    (str base-year "년 " month "월 " day "일")))
+  (let [base-str (str base-year base-month-day)]
+    (clojure.string/replace base-str #"0" "o")))
 
 (defn storage-url [upload-path]
   #?(:cljs

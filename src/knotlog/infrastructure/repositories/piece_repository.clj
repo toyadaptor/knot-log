@@ -2,16 +2,18 @@
   (:require [knotlog.interface.repositories.piece-interface :as p]
             [clojure.java.jdbc :as j]
             [honey.sql :as sql]
-            [clojure.set :as set]))
+            [camel-snake-kebab.core :as csk]
+            [camel-snake-kebab.extras :as cske]))
 
 (defrecord PieceRepositoryImpl [db-config]
   p/PieceRepository
 
   (find-piece-by-id [_ id]
-    (first (j/query db-config (sql/format
-                                {:select :*
-                                 :from   :knot_piece
-                                 :where  [:= :id id]}))))
+    (->> (first (j/query db-config (sql/format
+                                     {:select :*
+                                      :from   :knot_piece
+                                      :where  [:= :id id]})))
+         (cske/transform-keys csk/->kebab-case-keyword)))
 
   (find-knots-by-prefix [_ prefix]
     (j/query db-config (sql/format
@@ -24,11 +26,11 @@
                           :limit    10})))
 
   (find-piece-by-knot [_ knot]
-    (first
-      (j/query db-config (sql/format
-                           {:select :*
-                            :from   :knot_piece
-                            :where  [:= :knot knot]}))))
+    (->> (first (j/query db-config (sql/format
+                                     {:select :*
+                                      :from   :knot_piece
+                                      :where  [:= :knot knot]})))
+         (cske/transform-keys csk/->kebab-case-keyword)))
 
   (find-latest-piece [_]
     (first (j/query db-config (sql/format
@@ -66,15 +68,6 @@
                                        [:> :update_time update-time]]
                             :order-by [[:update_time :asc]]
                             :limit    1}))))
-
-  (find-pieces-by-date [_ month-day]
-    (j/query db-config (sql/format
-                         {:select   [:base_year
-                                     [[:max :id] :id]]
-                          :from     :knot_piece
-                          :where    [:= :base_month_day month-day]
-                          :group-by [:base_year]
-                          :order-by [[:base_year :desc]]})))
 
   (save-piece [_ piece]
     (first

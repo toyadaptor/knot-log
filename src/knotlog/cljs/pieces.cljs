@@ -7,13 +7,11 @@
             [knotlog.cljs.helper :refer [get-backend-url]]
             [knotlog.common.util :refer [iso-str-to base-date-str-to storage-url]]
             [knotlog.cljs.component.knot-link :refer [knot-link-component]]
-            [knotlog.cljs.component.piece-new :refer [piece-new-component]]
             [knotlog.cljs.component.piece-edit :refer [piece-edit-component]]
             [knotlog.cljs.convert :refer [process-content]]))
 
 (defn pieces-component [{:keys [id key is-login]}]
-  (let [piece-new-modal (r/atom nil)
-        piece-edit-modal (r/atom nil)
+  (let [piece-edit-modal (r/atom nil)
         piece-link-modal (r/atom nil)
         state-piece (r/atom nil)
         touch-start (r/atom nil)
@@ -35,7 +33,7 @@
             (handle-swipe []
               (when (and @touch-start @touch-end)
                 (let [swipe-distance (- (.-clientX @touch-start) (.-clientX @touch-end))
-                      min-swipe-distance 50] ; Minimum distance to consider it a swipe
+                      min-swipe-distance 50]                ; Minimum distance to consider it a swipe
                   (when (> (js/Math.abs swipe-distance) min-swipe-distance)
                     (if (> swipe-distance 0)
                       ; Swipe left -> go to next
@@ -71,17 +69,15 @@
            (fn []
              (if-let [p @state-piece]
                [:section.section
-                {:on-touch-start (fn [e]
-                                   (reset! touch-start (-> e .-touches (aget 0))))
-                 :on-touch-end (fn [e]
-                                 (reset! touch-end (-> e .-changedTouches (aget 0)))
-                                 (handle-swipe))
+                {:on-touch-start  (fn [e]
+                                    (reset! touch-start (-> e .-touches (aget 0))))
+                 :on-touch-end    (fn [e]
+                                    (reset! touch-end (-> e .-changedTouches (aget 0)))
+                                    (handle-swipe))
                  :on-touch-cancel (fn [_]
                                     (reset! touch-start nil)
                                     (reset! touch-end nil))}
                 ^{:key key}
-                [piece-new-component {:is-open   piece-new-modal
-                                      :get-piece get-piece}]
                 [piece-edit-component {:is-open     piece-edit-modal
                                        :state-piece state-piece
                                        :reload      reload}]
@@ -89,7 +85,6 @@
                                       :state-piece state-piece
                                       :reload      reload}]
                 [:div
-
 
                  [:h1.is-size-3 (or (-> p :piece :knot) "*")]
 
@@ -101,24 +96,22 @@
                  [:div.tags
                   (doall
                     (for [link (-> p :link-in)]
-                      ^{:key (:knot_id link)}
+                      ^{:key (:knotid link)}
                       [:span.tag.is-black
-                       [:a.has-text-white {:on-click #(rfe/push-state :piece {:id (:knot_id link)})}
+                       [:a.has-text-white {:on-click #(rfe/push-state :piece {:id (:knot-id link)})}
                         (:knot link)]
                        (if @is-login
                          [:button.delete
                           {:on-click #(delete-link (:id link))}])]))
                   (if @is-login
-                    [:div.tags
-                     [:span.tag.is-primary
-                      [:a.has-text-black {:on-click #(reset! piece-new-modal "is-active")}
-                       "piece+"]]
-                     [:span.tag.is-success
-                      [:a.has-text-black {:on-click #(reset! piece-edit-modal "is-active")}
-                       "edit"]]
-                     [:span.tag.is-danger
-                      [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
-                       "link+"]]])]
+                    [:div
+                     [:a.has-text-black {:on-click #(reset! piece-edit-modal "is-active")}
+                      [:span.icon
+                       [:i.fas.fa-edit]]]
+
+                     [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
+                      [:span.icon
+                       [:i.fas.fa-link]]]])]
 
                  [:div.content.is-normal
                   [:dl
@@ -130,8 +123,9 @@
                                          {:style :knot-full})
                              (:knot link))]])]]
 
-                 [:p [:small
-                      (iso-str-to (-> p :piece :update_time) {:style :knot-full})]]
+                 [:div.has-text-right
+                  [:span.has-text-black (base-date-str-to (-> p :piece :base-year) (-> p :piece :base-month-day))]
+                  [:span (str "." (iso-str-to (-> p :piece :update-time) {:style :knot-full}))]]
 
                  [:br]
 

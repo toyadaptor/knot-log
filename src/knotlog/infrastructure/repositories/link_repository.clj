@@ -1,37 +1,42 @@
 (ns knotlog.infrastructure.repositories.link-repository
   (:require [knotlog.interface.repositories.link-interface :as p]
             [clojure.java.jdbc :as j]
-            [honey.sql :as sql]))
+            [honey.sql :as sql]
+            [camel-snake-kebab.core :as csk]
+            [camel-snake-kebab.extras :as cske]))
 
 (defrecord LinkRepositoryImpl [db-config]
   p/LinkRepository
   
   (find-link-by-id [_ id]
     (first
-      (j/query db-config (sql/format
-                           {:select :*
-                            :from   :knot_link
-                            :where  [:= :id id]}))))
+      (->> (j/query db-config (sql/format
+                                {:select :*
+                                 :from   :knot_link
+                                 :where  [:= :id id]}))
+           (cske/transform-keys csk/->kebab-case-keyword))))
   
   (find-links-by-knot [_ knot-id]
-    (j/query db-config (sql/format
-                         {:select   [:link.piece_id
-                                     :piece.knot
-                                     :piece.update_time]
-                          :from     [[:knot_link :link]]
-                          :join     [[:knot_piece :piece] [:= :link.piece_id :piece.id]]
-                          :order-by [[:link.create_time :desc]]
-                          :where    [:= :link.knot_id knot-id]})))
+    (->> (j/query db-config (sql/format
+                              {:select   [:link.piece_id
+                                          :piece.knot
+                                          :piece.update_time]
+                               :from     [[:knot_link :link]]
+                               :join     [[:knot_piece :piece] [:= :link.piece_id :piece.id]]
+                               :order-by [[:link.create_time :desc]]
+                               :where    [:= :link.knot_id knot-id]}))
+         (cske/transform-keys csk/->kebab-case-keyword)))
   
   (find-links-by-piece [_ piece-id]
-    (j/query db-config (sql/format
-                         {:select   [:link.id
-                                     :link.knot_id
-                                     :piece.knot]
-                          :from     [[:knot_link :link]]
-                          :join     [[:knot_piece :piece] [:= :link.knot_id :piece.id]]
-                          :order-by [[:link.create_time :desc]]
-                          :where    [:= :link.piece_id piece-id]})))
+    (->> (j/query db-config (sql/format
+                              {:select   [:link.id
+                                          :link.knot_id
+                                          :piece.knot]
+                               :from     [[:knot_link :link]]
+                               :join     [[:knot_piece :piece] [:= :link.knot_id :piece.id]]
+                               :order-by [[:link.create_time :desc]]
+                               :where    [:= :link.piece_id piece-id]}))
+         (cske/transform-keys csk/->kebab-case-keyword)))
   
   (save-link [_ knot-id piece-id]
     (first

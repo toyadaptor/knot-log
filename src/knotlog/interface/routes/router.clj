@@ -53,7 +53,7 @@
 
       ["/pieces/:id" {:get {:parameters {:path {:id int?}}
                             :handler    (fn [{{{:keys [id]} :path} :parameters}]
-                                          {:status 200 :body (piece-service/handle-piece!
+                                          {:status 200 :body (piece-service/get-piece!
                                                                config/piece-repository
                                                                config/link-repository
                                                                config/file-repository

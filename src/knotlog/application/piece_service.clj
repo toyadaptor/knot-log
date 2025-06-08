@@ -30,7 +30,7 @@
     {:id (:id piece)}
     (create-piece! piece-repository "hi")))
 
-(defn handle-piece!
+(defn get-piece!
   "Handle request for a piece by ID"
   [piece-repository link-repository file-repository piece-id]
   (if-let [result (when-let [piece (piece-i/find-piece-by-id piece-repository piece-id)]
@@ -38,8 +38,8 @@
                       piece
                       (link-i/find-links-by-knot link-repository piece-id)
                       (link-i/find-links-by-piece link-repository piece-id)
-                      (piece-i/find-piece-prev piece-repository (:update_time piece))
-                      (piece-i/find-piece-next piece-repository (:update_time piece))
+                      (piece-i/find-piece-prev piece-repository (:update-time piece))
+                      (piece-i/find-piece-next piece-repository (:update-time piece))
                       (file-i/find-files-by-piece file-repository piece-id)))]
     result
     {:piece (piece/not-found-piece-data)}))

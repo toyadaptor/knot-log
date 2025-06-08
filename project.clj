@@ -8,6 +8,7 @@
                  [org.clojure/java.jdbc "0.7.12"]
                  [com.github.seancorfield/honeysql "2.2.861"]
                  [org.postgresql/postgresql "42.3.2"]
+                 [camel-snake-kebab "0.4.3"]
                  [metosin/reitit "0.7.2"]
                  [ring/ring-core "1.13.0"]
                  [ring-cors "0.1.13"]
