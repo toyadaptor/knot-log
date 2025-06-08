@@ -87,33 +87,28 @@
       ["/private"
        {:middleware [[wrap-role-authorization [:admin]]]}
 
-       ["/pieces" {:post {:parameters {:body {:content string?}}
-                          :handler    (fn [{{{:keys [content]} :body} :parameters}]
-                                        {:status 200 :body (piece-service/create-piece! config/piece-repository content)})}}]
+       ["/pieces" {:post {:parameters {:body {:content        string?
+                                              :knot           string?
+                                              :base-year      string?
+                                              :base-month-day string?}}
+                          :handler    (fn [{{{:keys [content knot base-year base-month-day]} :body} :parameters}]
+                                        {:status 200 :body (piece-service/create-piece! config/piece-repository {:content        content
+                                                                                                                 :knot           knot
+                                                                                                                 :base-year      base-year
+                                                                                                                 :base-month-day base-month-day})})}}]
 
-       ["/pieces/:id/content" {:put {:parameters {:path {:id int?}
-                                                  :body {:content string?}}
-                                     :handler    (fn [{{{:keys [id]}      :path
-                                                        {:keys [content]} :body} :parameters}]
-                                                   (piece-service/handle-piece-update! config/piece-repository id {:content content})
-                                                   {:status 200 :body {}})}}]
+       ["/pieces/:id" {:put {:parameters {:path {:id int?}
+                                          :body {:content        string?
+                                                 :knot           string?
+                                                 :base-year      string?
+                                                 :base-month-day string?}}
+                             :handler    (fn [{{{:keys [id]}                                    :path
+                                                {:keys [content knot base-year base-month-day]} :body} :parameters}]
 
-       ["/pieces/:id/knot" {:put {:parameters {:path {:id int?}
-                                               :body {:knot string?}}
-                                  :handler    (fn [{{{:keys [id]}   :path
-                                                     {:keys [knot]} :body} :parameters}]
-                                                (piece-service/handle-piece-update! config/piece-repository id {:knot knot})
-                                                {:status 200 :body {}})}}]
-
-       ["/pieces/:id/date" {:put {:parameters {:path {:id int?}
-                                               :body {:base_year      string?
-                                                      :base_month_day string?}}
-                                  :handler    (fn [{{{:keys [id]}                       :path
-                                                     {:keys [base_year base_month_day]} :body} :parameters}]
-                                                (piece-service/handle-piece-update! config/piece-repository id
-                                                                                    {:base_year      base_year
-                                                                                     :base_month_day base_month_day})
-                                                {:status 200 :body {}})}}]
+                                           {:status 200 :body (piece-service/piece-update! config/piece-repository id {:content        content
+                                                                                                                       :knot           knot
+                                                                                                                       :base-year      base-year
+                                                                                                                       :base-month-day base-month-day})})}}]
 
        ["/pieces/:id/files" {:post {:parameters {:path             {:id int?}
                                                  :multipart-params {:files any?}}

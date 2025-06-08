@@ -7,18 +7,13 @@
             [knotlog.cljs.helper :refer [get-backend-url]]
             [knotlog.common.util :refer [iso-str-to base-date-str-to storage-url]]
             [knotlog.cljs.component.knot-link :refer [knot-link-component]]
-            [knotlog.cljs.component.piece-content :refer [piece-content-component]]
-            [knotlog.cljs.component.piece-content-new :refer [piece-content-component-new]]
-            [knotlog.cljs.component.piece-knot :refer [piece-knot-component]]
-            [knotlog.cljs.component.piece-date :refer [piece-date-component]]
-            [knotlog.cljs.component.upload :refer [upload-component]]
+            [knotlog.cljs.component.piece-new :refer [piece-new-component]]
+            [knotlog.cljs.component.piece-edit :refer [piece-edit-component]]
             [knotlog.cljs.convert :refer [process-content]]))
 
 (defn pieces-component [{:keys [id key is-login]}]
-  (let [piece-content-modal (r/atom nil)
-        piece-content-new-modal (r/atom nil)
-        piece-knot-modal (r/atom nil)
-        piece-basedate-modal (r/atom nil)
+  (let [piece-new-modal (r/atom nil)
+        piece-edit-modal (r/atom nil)
         piece-link-modal (r/atom nil)
         state-piece (r/atom nil)
         touch-start (r/atom nil)
@@ -85,32 +80,16 @@
                                     (reset! touch-start nil)
                                     (reset! touch-end nil))}
                 ^{:key key}
-                [piece-content-component {:is-open     piece-content-modal
-                                          :state-piece state-piece
-                                          :reload      reload}]
-                [piece-content-component-new {:is-open   piece-content-new-modal
-                                              :get-piece get-piece}]
-                [piece-knot-component {:is-open     piece-knot-modal
-                                       :state-piece state-piece
-                                       :reload      reload}]
-                [piece-date-component {:is-open     piece-basedate-modal
+                [piece-new-component {:is-open   piece-new-modal
+                                      :get-piece get-piece}]
+                [piece-edit-component {:is-open     piece-edit-modal
                                        :state-piece state-piece
                                        :reload      reload}]
                 [knot-link-component {:is-open     piece-link-modal
                                       :state-piece state-piece
                                       :reload      reload}]
                 [:div
-                 (if @is-login
-                   [:div.tags
-                    [:span.tag.is-info
-                     [:a.has-text-black {:on-click #(reset! piece-content-modal "is-active")}
-                      "content"]]
-                    [:span.tag.is-light
-                     [:a.has-text-black {:on-click #(reset! piece-basedate-modal "is-active")}
-                      "date"]]
-                    [:span.tag.is-primary
-                     [:a.has-text-black {:on-click #(reset! piece-content-new-modal "is-active")}
-                      "piece+"]]])
+
 
                  [:h1.is-size-3 (or (-> p :piece :knot) "*")]
 
@@ -131,10 +110,12 @@
                           {:on-click #(delete-link (:id link))}])]))
                   (if @is-login
                     [:div.tags
-                     [:span.tag.is-warning
-                      [:a.has-text-black {:on-click #(reset! piece-knot-modal "is-active")}
-                       "knot"]
-                      ]
+                     [:span.tag.is-primary
+                      [:a.has-text-black {:on-click #(reset! piece-new-modal "is-active")}
+                       "piece+"]]
+                     [:span.tag.is-success
+                      [:a.has-text-black {:on-click #(reset! piece-edit-modal "is-active")}
+                       "edit"]]
                      [:span.tag.is-danger
                       [:a.has-text-black {:on-click #(reset! piece-link-modal "is-active")}
                        "link+"]]])]
@@ -153,11 +134,6 @@
                       (iso-str-to (-> p :piece :update_time) {:style :knot-full})]]
 
                  [:br]
-
-                 (if @is-login
-                   [:div.content.is-normal
-                    [upload-component {:state-piece state-piece
-                                       :reload      reload}]])
 
                  [:div.buttons.is-centered
                   (if (-> p :prev-date)

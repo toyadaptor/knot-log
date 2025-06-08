@@ -2,16 +2,17 @@
   (:require [knotlog.interface.repositories.piece-interface :as piece-i]
             [knotlog.interface.repositories.link-interface :as link-i]
             [knotlog.interface.repositories.file-interface :as file-i]
-            [knotlog.domain.piece :as piece]
-            [knotlog.common.util :refer [now-time-str]]))
+            [knotlog.domain.piece :as piece]))
 
 (defn create-piece!
-  "Create a new piece"
-  [piece-repository content]
-  (let [base-year (now-time-str {:style :y})
-        base-month-day (now-time-str {:style :md})
-        new-piece (piece/create-piece content base-year base-month-day)]
+  [piece-repository piece]
+  (let [new-piece (piece/create-piece piece)]
     (piece-i/save-piece piece-repository new-piece)))
+
+(defn piece-update!
+  [piece-repository id piece]
+  (let [updated-piece (piece/update-piece piece)]
+    (piece-i/update-piece piece-repository id updated-piece)))
 
 (defn get-or-create-knot!
   "Get a knot by ID or create it if it doesn't exist"
@@ -19,7 +20,7 @@
   (if-let [knot-piece (piece-i/find-piece-by-knot piece-repository knot)]
     knot-piece
     (let [{:keys [id] :as new-piece} (create-piece! piece-repository ".")
-          updated-piece (piece-i/update-piece piece-repository id {:knot knot})]
+          updated-piece (piece-i/update-piece id piece-repository {:knot knot})]
       (or updated-piece (assoc new-piece :knot knot)))))
 
 (defn handle-piece-latest!
@@ -43,19 +44,7 @@
     result
     {:piece (piece/not-found-piece-data)}))
 
-(defn handle-piece-update!
-  "Handle request to update a piece"
-  [piece-repository id data]
-  (cond
-    (:content data)
-    (piece-i/update-piece piece-repository id {:content (:content data)})
 
-    (:knot data)
-    (piece-i/update-piece piece-repository id {:knot (when-not (empty? (:knot data)) (:knot data))})
-
-    (and (:base_year data) (:base_month_day data))
-    (piece-i/update-piece piece-repository id {:base-year      (:base_year data)
-                                               :base-month-day (:base_month_day data)})))
 
 (defn handle-knots-search!
   "Handle request to search for knots by prefix"

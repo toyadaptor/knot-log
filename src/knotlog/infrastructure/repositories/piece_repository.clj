@@ -15,11 +15,11 @@
 
   (find-knots-by-prefix [_ prefix]
     (j/query db-config (sql/format
-                         {:select :knot
-                          :from   :knot_piece
-                          :where  [:and
-                                   [:not= :knot nil]
-                                   [:like :knot (str prefix "%")]]
+                         {:select   :knot
+                          :from     :knot_piece
+                          :where    [:and
+                                     [:not= :knot nil]
+                                     [:like :knot (str prefix "%")]]
                           :order-by [[:knot :asc]]
                           :limit    10})))
 
@@ -81,16 +81,21 @@
       (j/query db-config (sql/format
                            {:insert-into :knot_piece
                             :values      [{:content        (:content piece)
+                                           :knot           (:knot piece)
                                            :base_year      (:base-year piece)
-                                           :base_month_day (:base-month-day piece)}]
+                                           :base_month_day (:base-month-day piece)
+                                           :create_time    :%now
+                                           :update_time    :%now}]
                             :returning   [:id]}))))
 
-  (update-piece [_ id data]
+  (update-piece [_ id piece]
     (j/execute! db-config (sql/format
                             {:update :knot_piece
-                             :set    (merge (set/rename-keys data {:base-year :base_year
-                                                                     :base-month-day :base_month_day})
-                                            {:update_time :%now})
+                             :set    {:content        (:content piece)
+                                      :knot           (:knot piece)
+                                      :base_year      (:base-year piece)
+                                      :base_month_day (:base-month-day piece)
+                                      :update_time    :%now}
                              :where  [:= :id id]})))
 
   (delete-piece [_ id]

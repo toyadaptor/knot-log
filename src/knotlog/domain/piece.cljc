@@ -4,11 +4,21 @@
 (defrecord Piece [id create-time update-time base-year base-month-day content summary knot])
 
 (defn create-piece
-  "Creates a new piece with the given content"
-  [content base-year base-month-day]
-  (map->Piece {:content content
-               :base-year base-year
-               :base-month-day base-month-day}))
+  [{:keys [content knot base-year base-month-day]}]
+  (map->Piece {:content        content
+               :knot           (if (empty? knot) nil knot)
+               :base-year      (if (empty? base-year) (now-time-str {:style :y}) base-year)
+               :base-month-day (if (empty? base-month-day) (now-time-str {:style :md}) base-month-day)
+               :create-time    :%
+               :update-time    :%}))
+
+(defn update-piece
+  [{:keys [content knot base-year base-month-day]}]
+  (map->Piece {:content        content
+               :knot           (if (empty? knot) nil knot)
+               :base-year      (if (empty? base-year) (now-time-str {:style :y}) base-year)
+               :base-month-day (if (empty? base-month-day) (now-time-str {:style :md}) base-month-day)
+               :update-time    :%}))
 
 (defn piece-with-links-data
   "Prepare piece with links data structure"
@@ -32,3 +42,5 @@
   "Format knots search result"
   [knots]
   {:knots (map :knot knots)})
+
+
