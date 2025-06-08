@@ -24,8 +24,8 @@
   (try
     (let [file (file-i/find-file-by-id file-repository file-id)]
       (if (and file
-               (= (:piece_id file) piece-id))
-        (let [uri-path (:uri_path file)]
+               (= (:piece-id file) piece-id))
+        (let [uri-path (:uri-path file)]
           (file-storage-i/remove-file file-storage uri-path)
           (log/info "deleted from storage: " uri-path)
           (file-i/remove-file file-repository file-id)

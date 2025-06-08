@@ -33,21 +33,23 @@
          (cske/transform-keys csk/->kebab-case-keyword)))
 
   (find-latest-piece [_]
-    (first (j/query db-config (sql/format
-                                {:select   :*
-                                 :from     :knot_piece
-                                 :where    [:= :knot nil]
-                                 :order-by [[:update_time :desc]]
-                                 :limit    1}))))
+    (->> (first (j/query db-config (sql/format
+                                  {:select   :*
+                                   :from     :knot_piece
+                                   :where    [:= :knot nil]
+                                   :order-by [[:update_time :desc]]
+                                   :limit    1})))
+      (cske/transform-keys csk/->kebab-case-keyword)))
 
   (find-recent-pieces [_ offset limit]
-    (j/query db-config (sql/format
-                         {:select   :*
-                          :from     :knot_piece
-                          :where    [:= :knot nil]
-                          :order-by [[:update_time :desc]]
-                          :offset   offset
-                          :limit    limit})))
+    (->> (j/query db-config (sql/format
+                              {:select   :*
+                               :from     :knot_piece
+                               :where    [:= :knot nil]
+                               :order-by [[:update_time :desc]]
+                               :offset   offset
+                               :limit    limit}))
+         (cske/transform-keys csk/->kebab-case-keyword)))
 
   (find-piece-prev [_ update-time]
     (first

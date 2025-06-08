@@ -116,10 +116,10 @@
                  [:div.content.is-normal
                   [:dl
                    (for [link (-> p :link-out)]
-                     ^{:key (:piece_id link)}
-                     [:dt [:a.has-text-info {:on-click #(rfe/push-state :piece {:id (:piece_id link)})}
+                     ^{:key (:piece-id link)}
+                     [:dt [:a.has-text-info {:on-click #(rfe/push-state :piece {:id (:piece-id link)})}
                            (if (empty? (:knot link))
-                             (iso-str-to (:update_time link)
+                             (iso-str-to (:update-time link)
                                          {:style :knot-full})
                              (:knot link))]])]]
 
@@ -150,6 +150,6 @@
                     (for [today (-> p :todays)]
                       ^{:key (:id today)}
                       [:button.button.is-small {:on-click #(rfe/push-state :piece {:id (:id today)})}
-                       (:base_year today)])]
+                       (:base-year today)])]
                  ]]
                ))})))))

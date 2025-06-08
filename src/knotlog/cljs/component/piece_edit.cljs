@@ -14,8 +14,8 @@
                 (let [{:keys [status]} (<! (http/put (get-backend-url (str "/api/private/pieces/" id))
                                                      {:with-credentials? true
                                                       :json-params       {:content (-> @state-piece :piece :content)
-                                                                          :base-year (-> @state-piece :piece :base_year)
-                                                                          :base-month-day (-> @state-piece :piece :base_month_day)
+                                                                          :base-year (-> @state-piece :piece :base-year)
+                                                                          :base-month-day (-> @state-piece :piece :base-month-day)
                                                                           :knot (-> @state-piece :piece :knot)}}))]
                   (if (= 200 status)
                     (do
@@ -44,13 +44,13 @@
           [:div.control
            [:label.label "year"]
            [:input.input {:type      "text"
-                          :value     (-> @state-piece :piece :base_year)
-                          :on-change #(swap! state-piece assoc-in [:piece :base_year] (-> % .-target .-value))}]]
+                          :value     (-> @state-piece :piece :base-year)
+                          :on-change #(swap! state-piece assoc-in [:piece :base-year] (-> % .-target .-value))}]]
           [:div.control
            [:label.label "month + day"]
            [:input.input {:type      "text"
-                          :value     (-> @state-piece :piece :base_month_day)
-                          :on-change #(swap! state-piece assoc-in [:piece :base_month_day] (-> % .-target .-value))}]]]
+                          :value     (-> @state-piece :piece :base-month-day)
+                          :on-change #(swap! state-piece assoc-in [:piece :base-month-day] (-> % .-target .-value))}]]]
 
          ;; Knot section
          [:div.field

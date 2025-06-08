@@ -45,6 +45,6 @@
           [:li
            [:small
             [:span.icon-text
-             [:span.has-text-grey (:uri_path file)]
+             [:span.has-text-grey (:uri-path file)]
              [:a.icon.has-text-black {:on-click #(delete-file (:id file))}
               [:i.fas.fa-circle-xmark]]]]])]])))

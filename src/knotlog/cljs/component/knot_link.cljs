@@ -12,7 +12,7 @@
                 (go
                   (let [{:keys [status]} (<! (http/post (get-backend-url (str "/api/private/knot-links"))
                                                         {:with-credentials? true
-                                                         :json-params       {:piece_id id
+                                                         :json-params       {:piece-id id
                                                                              :knot     @knot-name}}))]
                     (if (= 200 status)
                       (do
@@ -44,5 +44,3 @@
               "Cancel"]]]]]
          [:button.modal-close.is-large {:aria-label "close"
                                         :on-click   #(cancel)}]]))))
-
-

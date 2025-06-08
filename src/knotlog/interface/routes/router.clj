@@ -134,13 +134,13 @@
                                                                                      id
                                                                                      file-id)}))}}]
 
-       ["/knot-links" {:post {:parameters {:body {:piece_id int?
+       ["/knot-links" {:post {:parameters {:body {:piece-id int?
                                                   :knot     string?}}
-                              :handler    (fn [{{{:keys [piece_id knot]} :body} :parameters}]
+                              :handler    (fn [{{{:keys [piece-id knot]} :body} :parameters}]
                                             (link-service/create-link!
                                               config/piece-repository
                                               config/link-repository
-                                              piece_id
+                                              piece-id
                                               knot)
                                             {:status 200 :body {}})}}]
        ["/knot-links/:id" {:delete {:parameters {:path {:id int?}}
