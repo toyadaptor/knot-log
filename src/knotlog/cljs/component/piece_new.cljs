@@ -7,19 +7,18 @@
 
 
 (defn piece-new-component [{:keys [is-open get-piece]}]
-  (let [content (r/atom "")
-        base-year (r/atom "")
-        base-month-day (r/atom "")
-        knot (r/atom "")]
+  (let [content (r/atom nil)
+        base-year (r/atom nil)
+        base-month-day (r/atom nil)
+        knot (r/atom nil)]
     (letfn [(save []
-              ;; Create new piece
               (go
                 (let [{:keys [status body]} (<! (http/post (get-backend-url "/api/private/pieces")
                                                            {:with-credentials? true
-                                                            :json-params       {:content @content
-                                                                                :base-year @base-year
+                                                            :json-params       {:content        @content
+                                                                                :base-year      @base-year
                                                                                 :base-month-day @base-month-day
-                                                                                :knot @knot}}))]
+                                                                                :knot           @knot}}))]
                   (if (= 200 status)
                     (do
                       (reset! content "")
@@ -63,9 +62,7 @@
               [:input.input {:type      "text"
                              :value     @knot
                              :on-change (fn [e]
-                                          (reset! knot (-> e .-target .-value)))}]]]
-
-            ]
+                                          (reset! knot (-> e .-target .-value)))}]]]]
 
            [:div.field.is-grouped
             [:div.control

@@ -1,5 +1,6 @@
 (ns knotlog.interface.routes.router
   (:require
+    [clojure.spec.alpha :refer [nilable]]
     [knotlog.application.piece-service :as piece-service]
     [knotlog.application.link-service :as link-service]
     [knotlog.application.file-service :as file-service]
@@ -87,10 +88,10 @@
       ["/private"
        {:middleware [[wrap-role-authorization [:admin]]]}
 
-       ["/pieces" {:post {:parameters {:body {:content        string?
-                                              :knot           string?
-                                              :base-year      string?
-                                              :base-month-day string?}}
+       ["/pieces" {:post {:parameters {:body {:content        (nilable string?)
+                                              :knot           (nilable string?)
+                                              :base-year      (nilable string?)
+                                              :base-month-day (nilable string?)}}
                           :handler    (fn [{{{:keys [content knot base-year base-month-day]} :body} :parameters}]
                                         {:status 200 :body (piece-service/create-piece! config/piece-repository {:content        content
                                                                                                                  :knot           knot
@@ -98,10 +99,10 @@
                                                                                                                  :base-month-day base-month-day})})}}]
 
        ["/pieces/:id" {:put {:parameters {:path {:id int?}
-                                          :body {:content        string?
-                                                 :knot           string?
-                                                 :base-year      string?
-                                                 :base-month-day string?}}
+                                          :body {:content        (nilable string?)
+                                                 :knot           (nilable string?)
+                                                 :base-year      (nilable string?)
+                                                 :base-month-day (nilable string?)}}
                              :handler    (fn [{{{:keys [id]}                                    :path
                                                 {:keys [content knot base-year base-month-day]} :body} :parameters}]
 

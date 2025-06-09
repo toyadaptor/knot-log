@@ -8,15 +8,14 @@
 
 (defn piece-edit-component [{:keys [is-open state-piece reload]}]
   (letfn [(save []
-            ;; Edit mode - update existing piece
             (let [id (-> @state-piece :piece :id)]
               (go
                 (let [{:keys [status]} (<! (http/put (get-backend-url (str "/api/private/pieces/" id))
                                                      {:with-credentials? true
-                                                      :json-params       {:content (-> @state-piece :piece :content)
-                                                                          :base-year (-> @state-piece :piece :base-year)
+                                                      :json-params       {:content        (-> @state-piece :piece :content)
+                                                                          :base-year      (-> @state-piece :piece :base-year)
                                                                           :base-month-day (-> @state-piece :piece :base-month-day)
-                                                                          :knot (-> @state-piece :piece :knot)}}))]
+                                                                          :knot           (-> @state-piece :piece :knot)}}))]
                   (if (= 200 status)
                     (do
                       (reload)
@@ -29,7 +28,6 @@
        [:div.modal-background]
        [:div.modal-content
         [:div.box
-         ;; Content section
          [:div.field
           [:div.control
            [:label.label "content"]
@@ -39,7 +37,6 @@
                                                (when-not is-composing
                                                  (swap! state-piece assoc-in [:piece :content] (-> e .-target .-value)))))}]]]
 
-         ;; Date section
          [:div.field.is-grouped
           [:div.control
            [:label.label "year"]
@@ -51,16 +48,12 @@
            [:input.input {:type      "text"
                           :value     (-> @state-piece :piece :base-month-day)
                           :on-change #(swap! state-piece assoc-in [:piece :base-month-day] (-> % .-target .-value))}]]]
-
-         ;; Knot section
          [:div.field
           [:div.control
            [:label.label "knot"]
            [:input.input {:type      "text"
                           :value     (-> @state-piece :piece :knot)
                           :on-change #(swap! state-piece assoc-in [:piece :knot] (-> % .-target .-value))}]]]
-
-         ;; Upload section
          [:div.field
           [:label.label "upload"]
           [upload-component {:state-piece state-piece
