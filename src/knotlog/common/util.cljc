@@ -1,9 +1,9 @@
 (ns knotlog.common.util
   (:require [tick.core :as t]
-            [tick.locale-en-us]
-            [clojure.java.io :as io]
-            [image-resizer.core :refer [resize]]
-            [image-resizer.format :as format])
+            [tick.locale-en-us])
+  #?(:clj (:require [clojure.java.io :as io]
+                    [image-resizer.core :refer [resize]]
+                    [image-resizer.format :as format]))
   #?(:clj (:import [java.sql Timestamp])))
 
 (defn time-format [zoned-date-time {:keys [style] :or {style :ymd}}]

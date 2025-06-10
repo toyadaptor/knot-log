@@ -1,7 +1,6 @@
 (ns knotlog.cljs.component.piece-new
   (:refer-clojure :exclude [parse-long])
-  (:require [knotlog.cljs.helper :refer [get-backend-url update-query-path]]
-            [cljs-http.client :as http]
+  (:require [knotlog.cljs.helper :refer [get-backend-url update-query-path api-request]]
             [cljs.core.async :refer [go <!]]
             [reagent.core :as r]))
 
@@ -13,12 +12,13 @@
         knot (r/atom nil)]
     (letfn [(save []
               (go
-                (let [{:keys [status body]} (<! (http/post (get-backend-url "/api/private/pieces")
-                                                           {:with-credentials? true
-                                                            :json-params       {:content        @content
-                                                                                :base-year      @base-year
-                                                                                :base-month-day @base-month-day
-                                                                                :knot           @knot}}))]
+                (let [{:keys [status body]} (<! (api-request :post 
+                                                            "/api/private/pieces"
+                                                            {:with-credentials? true
+                                                             :json-params       {:content        @content
+                                                                                 :base-year      @base-year
+                                                                                 :base-month-day @base-month-day
+                                                                                 :knot           @knot}}))]
                   (if (= 200 status)
                     (do
                       (reset! content "")

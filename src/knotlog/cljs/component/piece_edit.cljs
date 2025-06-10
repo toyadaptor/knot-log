@@ -1,6 +1,6 @@
 (ns knotlog.cljs.component.piece-edit
   (:refer-clojure :exclude [parse-long])
-  (:require [knotlog.cljs.helper :refer [get-backend-url]]
+  (:require [knotlog.cljs.helper :refer [get-backend-url api-request]]
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]
             [knotlog.cljs.component.upload :refer [upload-component]]
@@ -10,12 +10,13 @@
   (letfn [(save []
             (let [id (-> @state-piece :piece :id)]
               (go
-                (let [{:keys [status]} (<! (http/put (get-backend-url (str "/api/private/pieces/" id))
-                                                     {:with-credentials? true
-                                                      :json-params       {:content        (-> @state-piece :piece :content)
-                                                                          :base-year      (-> @state-piece :piece :base-year)
-                                                                          :base-month-day (-> @state-piece :piece :base-month-day)
-                                                                          :knot           (-> @state-piece :piece :knot)}}))]
+                (let [{:keys [status]} (<! (api-request :put
+                                                       (str "/api/private/pieces/" id)
+                                                       {:with-credentials? true
+                                                        :json-params       {:content        (-> @state-piece :piece :content)
+                                                                            :base-year      (-> @state-piece :piece :base-year)
+                                                                            :base-month-day (-> @state-piece :piece :base-month-day)
+                                                                            :knot           (-> @state-piece :piece :knot)}}))]
                   (if (= 200 status)
                     (do
                       (reload)

@@ -1,6 +1,6 @@
 (ns knotlog.cljs.component.upload
   (:refer-clojure :exclude [parse-long])
-  (:require [knotlog.cljs.helper :refer [get-backend-url]]
+  (:require [knotlog.cljs.helper :refer [get-backend-url api-request]]
             [cljs-http.client :as http]
             [cljs.core.async :refer [go <!]]))
 
@@ -11,17 +11,19 @@
               (doseq [file files]
                 (.append form-data "files" file))
               (go
-                (let [response (<! (http/post (get-backend-url (str "/api/private/pieces/" id "/files"))
-                                              {:body              form-data
-                                               :with-credentials? true}))]
+                (let [response (<! (api-request :post
+                                               (str "/api/private/pieces/" id "/files")
+                                               {:body              form-data
+                                                :with-credentials? true}))]
                   (if (= 200 (:status response))
                     (reload)
                     (js/console.error "Upload failed!" (:body response)))))))
           (delete-file [file-id]
             (go
               (let [id (-> @state-piece :piece :id)
-                    response (<! (http/delete (get-backend-url (str "/api/private/pieces/" id "/files/" file-id))
-                                            {:with-credentials? true}))]
+                    response (<! (api-request :delete
+                                             (str "/api/private/pieces/" id "/files/" file-id)
+                                             {:with-credentials? true}))]
                 (if (= 200 (:status response))
                   (reload)
                   (js/console.error "Delete failed!" (:body response)))))
