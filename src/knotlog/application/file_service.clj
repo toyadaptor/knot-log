@@ -1,5 +1,5 @@
 (ns knotlog.application.file-service
-  (:require [knotlog.infrastructure.config :as config]
+  (:require [knotlog.common.util :as util]
             [knotlog.interface.repositories.file-storage-interface :as file-storage-i]
             [knotlog.interface.repositories.file-interface :as file-i]
             [taoensso.timbre :as log]))
@@ -10,8 +10,9 @@
     (doseq [file (if (map? files) [files] files)]
       (let [file-name (:filename file)
             local-path (.getAbsolutePath (:tempfile file))
+            resize-path (util/resize-image local-path file-name 500)
             destination-path (str "uploads/" piece-id "/" file-name)]
-        (file-storage-i/upload-file file-storage local-path destination-path)
+        (file-storage-i/upload-file file-storage resize-path destination-path)
         (log/info "uploaded to firebase storage: " destination-path)
         (file-i/save-file file-repository piece-id destination-path)
         (log/info "saved to repository: " destination-path)))
@@ -35,11 +36,3 @@
     (catch Exception e
       (log/error "Error deleting file: " (.getMessage e))
       {:success false :message (.getMessage e)})))
-
-
-(comment
-  (let [fire-storage (knotlog.infrastructure.firebase-storage/->FirebaseStorageImpl config/firebase-config)]
-    (file-storage-i/upload-file fire-storage "/Users/snail/Desktop/butterfly.png" "uploads/1/butterfly.png"))
-
-  (let [fire-storage (knotlog.infrastructure.firebase-storage/->FirebaseStorageImpl config/firebase-config)]
-      (file-storage-i/remove-file fire-storage "uploads/1/butterfly.png")))

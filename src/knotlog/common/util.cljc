@@ -1,6 +1,9 @@
 (ns knotlog.common.util
   (:require [tick.core :as t]
-            [tick.locale-en-us])
+            [tick.locale-en-us]
+            [clojure.java.io :as io]
+            [image-resizer.core :refer [resize]]
+            [image-resizer.format :as format])
   #?(:clj (:import [java.sql Timestamp])))
 
 (defn time-format [zoned-date-time {:keys [style] :or {style :ymd}}]
@@ -50,3 +53,20 @@
   #?(:cljs
      (str "https://firebasestorage.googleapis.com/v0/b/knotlog-ae3d9.firebasestorage.app/o/"
           (js/encodeURIComponent upload-path) "?alt=media")))
+
+(defn file-extension [file-name]
+  (when (re-find #"\." file-name)
+    (last (clojure.string/split file-name #"\."))))
+
+(defn resize-image [local-path file-name max-pixel]
+  #?(:clj (let [re (resize (io/file local-path) max-pixel max-pixel)
+                ext (file-extension file-name)
+                filename (str (first (clojure.string/split local-path #"\.")) "_re." ext)]
+            (format/as-file re filename))))
+
+(comment
+  (file-extension "asdf.png")
+
+  (resize-image "/tmp/ring-multipart-8965039994217530103.tmp" 400)
+  (resize-image "/home/snail/mine.png" 700)
+  )
