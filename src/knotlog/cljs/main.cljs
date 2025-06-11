@@ -108,9 +108,10 @@
           [:header [:h1.is-size-5
                     [:a.has-text-grey {:on-click #(rfe/push-state :index)}
                      "@KNOT"]
-                    [:a.has-text-black {:on-click #(reset! piece-new-modal "is-active")}
-                     [:span.icon
-                      [:i.fas.fa-plus]]]]]
+                    (if @is-login
+                      [:a.has-text-black {:on-click #(reset! piece-new-modal "is-active")}
+                       [:span.icon
+                        [:i.fas.fa-plus]]])]]
 
           [sound-component]
 

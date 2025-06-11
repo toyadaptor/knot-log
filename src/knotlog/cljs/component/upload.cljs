@@ -26,8 +26,11 @@
                                              {:with-credentials? true}))]
                 (if (= 200 (:status response))
                   (reload)
-                  (js/console.error "Delete failed!" (:body response)))))
-            )]
+                  (js/console.error "Delete failed!" (:body response))))))
+          (append-img-tag [filename]
+            (let [current-content (-> @state-piece :piece :content)
+                  new-content (str current-content "@img " filename "@")]
+              (swap! state-piece assoc-in [:piece :content] new-content)))]
     (fn []
       [:div
        [:div.file.is-small
@@ -47,6 +50,7 @@
           [:li
            [:small
             [:span.icon-text
-             [:span.has-text-grey (:uri-path file)]
+             [:span.has-text-grey {:style {:cursor "pointer"}
+                              :on-click #(append-img-tag (:uri-path file))} (:uri-path file)]
              [:a.icon.has-text-black {:on-click #(delete-file (:id file))}
               [:i.fas.fa-circle-xmark]]]]])]])))
